@@ -3,12 +3,12 @@ let mediaStream =null;
 export default async  function getMediaStream (mediaStreamConstraints,cb){
 
 	try {
-        debugger
-		mediaStream =await  navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+       
+		mediaStream =await  navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
 		cb(null,mediaStream);
 	}
 	catch (error) {
-        debugger
+  
 		cb(error,null);
 	}
 
