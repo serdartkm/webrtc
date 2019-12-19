@@ -1,29 +1,36 @@
 /* eslint-disable react/prefer-stateless-function */
 import './style';
 import { Component } from 'preact';
-import { useRef, useEffect } from 'preact/hooks';
-import useLocalMediaStream from './localMedieaStream/useLocalMediaStream';
+import { useRef, useEffect, useState } from 'preact/hooks';
+import getlocalUserMedia from './localMedieaStream/getMediaStream';
 
 const DisplayMedia = () => {
-	debugger
-	const { error,localMediaStream } = useLocalMediaStream({ video: true,audio: false });
+	
 	const videoRef =useRef(null);
-
+	const [localMedia,setLocalMedia]= useState(null);
+	const [error,setError]=useState(null);
 	useEffect(() => {
-		debugger
-		if (localMediaStream){
-			debugger
-			videoRef.current.srcObject =localMediaStream;
-		}
-
-		if (error){
-			debugger
-			console.log('error',error);
-		}
+		getlocalUserMedia({},(error,media) => {
+			if (error){
+				setError(error);
+				debugger;
+			}
+			else {
+				setLocalMedia(media);
+				debugger;
+			}
+		});
 
 	},[]);
 
-	return (<video ref={videoRef} />);
+	useEffect(() => {
+		if (localMedia !==null){
+			videoRef.current.srcObject =localMedia;
+			debugger;
+		}
+	},[localMedia]);
+
+	return (<video autoPlay style={{  backgroundColor: 'yellow' }} ref={videoRef} />);
 };
 
 export default class App extends Component {
