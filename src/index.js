@@ -5,19 +5,23 @@ import { useRef, useEffect } from 'preact/hooks';
 import useLocalMediaStream from './localMedieaStream/useLocalMediaStream';
 
 const DisplayMedia = () => {
+	debugger
 	const { error,localMediaStream } = useLocalMediaStream({ video: true,audio: false });
 	const videoRef =useRef(null);
 
 	useEffect(() => {
+		debugger
 		if (localMediaStream){
+			debugger
 			videoRef.current.srcObject =localMediaStream;
 		}
 
 		if (error){
+			debugger
 			console.log('error',error);
 		}
 
-	},[localMediaStream,error]);
+	},[]);
 
 	return (<video ref={videoRef} />);
 };

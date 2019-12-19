@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import getMediaStream from './getMediaStream';
-export default async function ({ mediaStreamConstraints }){
+export default  function ({ mediaStreamConstraints }){
 
 	const [localMediaStream, setLocalMediaStream]=useState(null);
 	const [error,setError]= useState(null);
@@ -9,6 +9,7 @@ export default async function ({ mediaStreamConstraints }){
 			console.log("useLMS")
 		getMediaStream(mediaStreamConstraints,(error,mediaStream) => {
 			if (error){
+                debugger
 				setError(error);
 			}
 			else {
@@ -16,6 +17,6 @@ export default async function ({ mediaStreamConstraints }){
 			}
 		});
 
-	},[mediaStreamConstraints]);
+	},[error,localMediaStream]);
 	return { localMediaStream,error };
 }
