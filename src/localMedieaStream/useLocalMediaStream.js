@@ -4,7 +4,7 @@ import getlocalUserMedia from './getMediaStream';
 export default function useLocalMediaStream (mediaStreamConstraints) {
 	
 	
-	const [localMedia,setLocalMedia]= useState(null);
+	const [localMediaStream,setLocalMediaStream]= useState(null);
 
 	const [error,setError]=useState(null);
 	useEffect(() => {
@@ -15,13 +15,13 @@ export default function useLocalMediaStream (mediaStreamConstraints) {
 			
 			}
 			else {
-				setLocalMedia(media);
+				setLocalMediaStream(media);
 			
 			}
 		});
 
 	},[]);
 
-	return { error,localMedia };
+	return { error,localMediaStream };
 
 }
