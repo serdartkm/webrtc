@@ -1,7 +1,5 @@
 let rtcPeerConnection =null;
 
-import initAnswer from './initAnswer';
-import initOffer from './initOffer';
 
 export default function initRTCPeerConnection(config){
 
@@ -18,25 +16,8 @@ export default function initRTCPeerConnection(config){
 			new RTCIceCandidate(candidate)
 		);
 	}
-	return (cb) => {
-
-		const createAnswer = initAnswer(rtcPeerConnection,({ error,answer }) => {
-			if (answer){
-				cb({ answer });
-			}
-			else if (error){
-				cb({ error });
-			}
-		});
-        
-		const createOffer = initOffer(rtcPeerConnection,({ error,offer }) => {
-			if (offer){
-				cb({ offer });
-			}
-			else if (error){
-				cb({ error });
-			}
-		});
+	function rtcEventHandler  (cb) {
+	
 
 		rtcPeerConnection.onicecandidate = e => {
 			if (e.candidate !== null) {
@@ -59,8 +40,10 @@ export default function initRTCPeerConnection(config){
 		rtcPeerConnection.onerror = e => {
 			cb({ error: e });
 		};
-		return { rtcPeerConnection, createAnswer,createOffer,addLocalTrack,addRemoteCandidate };
+		
 
-	};
+	}
+	return { rtcPeerConnection, addLocalTrack,addRemoteCandidate, rtcEventHandler };
+
 }
 
