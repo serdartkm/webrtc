@@ -12,7 +12,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 
 	
 	const { remoteMediaStream,rtcConfig } =useRTCPeerConnection({ localMediaStream });
-	const { sendOffer,sendAnswer, caller }  =usePusherSignaling({ pusherConfig,rtcConfig,targetId });
+	const { sendOffer,sendAnswer, caller, error }  =usePusherSignaling({ pusherConfig,rtcConfig,targetId });
 
 
 	useEffect(() => {

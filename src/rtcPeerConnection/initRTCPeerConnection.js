@@ -16,6 +16,12 @@ export default function initRTCPeerConnection(config){
 			new RTCIceCandidate(candidate)
 		);
 	}
+
+	function addRemoteAnswer(remoteAnswer){
+		rtcPeerConnection.setRemoteDescription(
+			new RTCSessionDescription(remoteAnswer)
+		  );
+	}
 	function rtcEventHandler  (cb) {
 	
 
@@ -43,7 +49,7 @@ export default function initRTCPeerConnection(config){
 		
 
 	}
-	return { rtcPeerConnection, addLocalTrack,addRemoteCandidate, rtcEventHandler };
+	return { rtcPeerConnection, addLocalTrack,addRemoteCandidate, rtcEventHandler,addRemoteAnswer };
 
 }
 

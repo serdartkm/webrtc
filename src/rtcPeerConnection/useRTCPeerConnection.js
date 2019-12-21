@@ -3,7 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import initRTCPeerConnection from './initRTCPeerConnection';
 export default function useRTCPeerConnection ({ config,localMediaStream }){
 
-	const { rtcEventHandler, rtcPeerConnection,addLocalTrack,addRemoteCandidate } =initRTCPeerConnection(config);
+	const { rtcEventHandler, rtcPeerConnection,addLocalTrack,addRemoteCandidate,addRemoteAnswer } =initRTCPeerConnection(config);
 	const [connectionState,setConnectionState]=useState(null);
 	const [signalingState,setSignalingState]= useState(null);
 	const [remoteMediaStream,setRemoteMediaStream] =useState(null);
@@ -43,11 +43,12 @@ export default function useRTCPeerConnection ({ config,localMediaStream }){
 		  signalingState,// for ui
 		  error, // for ui
 		  remoteMediaStream,// for display
-			
+
 		  rtcConfig: {
 			localCandidate,//consumer is signaling server
 			rtcPeerConnection,
-			addRemoteCandidate
+			addRemoteCandidate,
+			addRemoteAnswer
 		  }
 	
 	

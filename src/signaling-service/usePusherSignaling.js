@@ -17,7 +17,7 @@ export default function usePuherSignaling({
   const [remoteOffer, setRemoteOffer] = useState(null);
   const [remoteAnswer, setRemoteAnswer] = useState(null);
   const [remoteCandidate, setRemoteCandidate] = useState(null);
-  const { localCandidate, rtcPeerConnection, addRemoteCandidate } = rtcConfig;
+  const { localCandidate, rtcPeerConnection, addRemoteCandidate,addRemoteAnswer } = rtcConfig;
   const { currentUser, error: chatManagerError } = usePusher(pusherConfig);
   const [caller,setCaller] =useState(null);
   const [error, setError] = useState(null);
@@ -30,9 +30,8 @@ export default function usePuherSignaling({
 
   useEffect(() => {
     if (remoteAnswer) {
-      rtcPeerConnection.setRemoteDescription(
-        new RTCSessionDescription(remoteAnswer)
-      );
+	console.log("rtcPeerConnection",rtcPeerConnection)
+   addRemoteAnswer(remoteAnswer);
     }
   }, [remoteAnswer]);
 
@@ -41,7 +40,7 @@ export default function usePuherSignaling({
   useEffect(() => {
     if (localOffer) {
       const offer = { sdp: localOffer, userId: currentUser.id, targetId };
-
+	
       sendMessage(JSON.stringify(offer));
     }
   }, [localOffer]);
@@ -83,6 +82,7 @@ export default function usePuherSignaling({
 				setRemoteOffer(sdp);
 				setCaller(userId);
               } else if (sdp.type === 'answer') {
+				
                 setRemoteAnswer(sdp);
               } else if (sdp.type === 'candidate') {
                 setRemoteCandidate(sdp);
