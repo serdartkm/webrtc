@@ -6,9 +6,13 @@ export default function initRTCPeerConnection(config){
 	rtcPeerConnection= new RTCPeerConnection(config);
  
 	function addLocalTrack(localMediaStream){
-		localMediaStream
-			.getVideoTracks()
-			.forEach(t => self.rtcPeerConnection.addTrack(t, localMediaStream));
+		if (localMediaStream){
+
+			localMediaStream
+				.getVideoTracks()
+				.forEach(t => rtcPeerConnection.addTrack(t, localMediaStream));
+		}
+	
 	}
     
 	function addRemoteCandidate (candidate){
@@ -18,9 +22,12 @@ export default function initRTCPeerConnection(config){
 	}
 
 	function addRemoteAnswer(remoteAnswer){
-		rtcPeerConnection.setRemoteDescription(
-			new RTCSessionDescription(remoteAnswer)
-		  );
+		setTimeout(() => {
+			rtcPeerConnection.setRemoteDescription(
+				new RTCSessionDescription(remoteAnswer)
+			  );
+		},1000);
+	
 	}
 	function rtcEventHandler  (cb) {
 	
