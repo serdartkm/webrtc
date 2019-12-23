@@ -4,6 +4,7 @@ import useRTCPeerConnection from '../rtcPeerConnection/useRTCPeerConnection';
 import usePusherSignaling from '../signaling-service/usePusherSignaling';
 import DisplayMediaStream from '../ui-components/DisplayMediaStream';
 import RTCConnectionState from '../ui-components/RTCConnectionState';
+import RTCStateComponent from '../ui-components/RTCStateComponent';
 import config from './servers';
 export default function  VideoChatComponent ({ userId,localMediaStream,mediaError,targetId }) {
 	const pusherConfig ={ roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f' ,
@@ -28,22 +29,24 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		
 		
 			<DisplayMediaStream height={150} width={150}  mediaStream={localMediaStream} mediaError={mediaError} />
-			<div>
-				<button onClick={sendOffer}>Call</button>
-				<button onClick={sendAnswer}>Answer</button>
-			</div>
+			
 		
 		</div>
-		<div style={{ height: '50vh', backgroundColor: 'blue' }} >
+		<div style={{ height: '30vh', backgroundColor: 'blue' }} >
 			<div>
 				{caller && <div>Call from :{caller}</div>}
 			Remote Media
 			</div>
 		
-			<DisplayMediaStream mediaStream={remoteMediaStream} />
+			<DisplayMediaStream  mediaStream={remoteMediaStream} />
+			
 		</div>
 		<div>
-			<RTCConnectionState remoteTrackAdded={remoteTrackAdded} error={error} connectionState={connectionState} signalingState={signalingState} iceConnectionState={iceConnectionState} iceGatheringState={iceGatheringState} />
+			<div>
+				<button onClick={sendOffer}>Call</button>
+				<button onClick={sendAnswer}>Answer</button>
+			</div>
+			<RTCStateComponent  connectionState={connectionState} signalingState={signalingState} iceConnectionState={iceConnectionState} iceGatheringState={iceGatheringState}  />
 		</div>
 	</div> );
     
