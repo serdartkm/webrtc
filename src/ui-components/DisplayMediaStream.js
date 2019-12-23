@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useRef, useEffect } from 'preact/hooks';
 
-export default function DisplayMediaStream ({ mediaStream }) {
+export default function DisplayMediaStream ({ mediaStream, width, height }) {
 	const videoRef =useRef(null);
 
 
@@ -12,7 +12,7 @@ export default function DisplayMediaStream ({ mediaStream }) {
 	},[mediaStream]);
 	
 	 if (mediaStream !==null){
-		return (<video autoPlay style={{  backgroundColor: 'yellow' }} ref={videoRef} />);
+		return (<video width={width} height={height} autoPlay style={{  backgroundColor: 'yellow' }} ref={videoRef} />);
 	}
 
 	

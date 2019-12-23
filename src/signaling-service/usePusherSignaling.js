@@ -23,18 +23,32 @@ export default function usePuherSignaling({
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (remoteCandidate) {
+    if (remoteCandidate && localAnswer) {
       addRemoteCandidate(remoteCandidate);
     }
-  }, [remoteCandidate]);
+   
+  }, [remoteCandidate, localAnswer]);
 
   useEffect(() => {
     if (remoteAnswer) {
-	console.log("rtcPeerConnection",rtcPeerConnection)
+
    addRemoteAnswer(remoteAnswer);
+
     }
   }, [remoteAnswer]);
 
+  useEffect(() => {
+    if (remoteCandidate && remoteAnswer) {
+     
+      addRemoteCandidate(remoteCandidate);
+    }
+  },[remoteCandidate,remoteAnswer]);
+useEffect(() => {
+  if (remoteOffer){
+   
+    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+  }
+},[remoteOffer]);
   //localOffer,localAnswer,localCandidate
 
   useEffect(() => {
@@ -48,8 +62,7 @@ export default function usePuherSignaling({
   useEffect(() => {
     if (localAnswer) {
       const answer = { sdp: localAnswer, userId: currentUser.id, targetId };
-
-	  sendMessage(JSON.stringify(answer));
+	    sendMessage(JSON.stringify(answer));
 	
     }
   }, [localAnswer]);
@@ -71,20 +84,22 @@ export default function usePuherSignaling({
         roomId,
         hooks: {
           onMessage: message => {
-          
+            
             const { targetId, sdp, userId } = JSON.parse(
               message.parts[0].payload.content
             );
-
+             
             if (targetId === currentUser.id) {
-           
+         
               if (sdp.type === 'offer') {
 				setRemoteOffer(sdp);
 				setCaller(userId);
               } else if (sdp.type === 'answer') {
-				
+              
+           
                 setRemoteAnswer(sdp);
-              } else if (sdp.type === 'candidate') {
+              } else if (sdp.type === undefined) {
+                
                 setRemoteCandidate(sdp);
               }
             }
@@ -96,10 +111,14 @@ export default function usePuherSignaling({
   }, [currentUser]);
 
   function sendMessage(msg) {
-    currentUser.sendSimpleMessage({
-      text: msg,
-      roomId: currentUser.rooms[0].id
-    });
+    if (msg !==null && msg !==undefined){
+      currentUser.sendSimpleMessage({
+        text: msg,
+        roomId: currentUser.rooms[0].id
+      });
+
+    }
+   
   }
 
   function sendOffer() {
@@ -112,7 +131,7 @@ export default function usePuherSignaling({
     });
   }
   function sendAnswer() {
-    createAnswer(rtcPeerConnection, remoteOffer, (error, answer) => {
+    createAnswer(rtcPeerConnection, (error, answer) => {
       if (error) {
 		
         setError(error);

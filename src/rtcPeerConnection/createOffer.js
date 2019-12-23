@@ -4,8 +4,9 @@ export default function createOffer (rtcPeerConnection,cb){
 		.createOffer()
 		.then(offer => {
 			rtcPeerConnection.setLocalDescription(offer);
-			cb(null,offer);
 		
+			cb(null,offer);
+	
 		})
 		.catch(error => {
 			cb(error, null);
