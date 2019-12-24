@@ -7,14 +7,25 @@ export default function usePusher (config){
 	const [currentUser,setCurrentUser]=useState(null);
 	const [pusherError,setPusherError] =useState(null);
 
+	
 	useEffect(() => {
-		setChatManager(new ChatManager({
-			instanceLocator,
-			userId,
-			tokenProvider: new TokenProvider({ url })
-		}));
+		
+
+		if (!navigator.onLine){
+			setPusherError(new Error('Your device is offline'));
+		}
+
+		else {
+			setChatManager(new ChatManager({
+				instanceLocator,
+				userId,
+				tokenProvider: new TokenProvider({ url })
+			}));
+		}
+		
 	
 	},[]);
+
     
 	useEffect(() => {
 		if (chatManager){
@@ -24,6 +35,8 @@ export default function usePusher (config){
 				})
 				.catch(err => {
 					setPusherError(err);
+
+					console.log('Pusher errror----',err);
 				});
 		}
 	},[chatManager]);

@@ -5,7 +5,7 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteCandidate,setRemoteCandidate]=useState(null);
 	const [caller,setCaller]=useState(null);
-	const [signalingError,setSignalingError] =useState(null);
+
 	useEffect(() => {
 		if (localOffer) {
 			const offer = { sdp: localOffer, userId: currentUser.id, targetId };
@@ -68,5 +68,5 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			});
 		}
 	}
-	return { remoteAnswer,remoteOffer,remoteCandidate,caller,signalingError };
+	return { remoteAnswer,remoteOffer,remoteCandidate,caller };
 }

@@ -13,7 +13,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 	const [remoteTrackAdded, setRemoteTrackAdded] = useState(false);
 	const [localCandidate, setlocalCandidate] = useState(null);
 	const [webrtcStateError, setWebRtcStateError] = useState(null);
-
+	const [negotiationneeded,setNegotiationNeeded] =useState(false);
 	useEffect(() => {
 		const rtcPeer = new RTCPeerConnection(config);
 		rtcPeer.onicecandidate = e => {
@@ -44,6 +44,10 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			setRemoteTrackAdded(true);
 		};
 
+		rtcPeer.negotiationeened=() => {
+			setNegotiationNeeded(true);
+		};
+
 		rtcPeer.onerror = e => {
 			setWebRtcStateError(e);
 		};
@@ -72,7 +76,8 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			signalingState, // for ui
 			iceConnectionState,
 			iceGatheringState,
-			remoteTrackAdded
+			remoteTrackAdded,
+			negotiationneeded
 		},
 		webrtcStateError, // for ui
 		remoteMediaStream, // for display

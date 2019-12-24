@@ -15,7 +15,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
-	const { remoteAnswer,remoteOffer,remoteCandidate, caller, signalingError }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
+	const { remoteAnswer,remoteOffer,remoteCandidate, caller }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
 	const { localOffer,localAnswer,localCandidate, state,sendOffer,sendAnswer,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,config,localMediaStream });
 
 	useEffect(() => {
@@ -39,7 +39,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		<div style={{ position: 'absolute',  backgroundColor: 'yellow' }}>
 		
 			<DisplayMediaStream height={150} width={150}  mediaStream={localMediaStream} mediaError={mediaError} />
-			
+
 		</div>
 		<div style={{ height: '30vh', backgroundColor: 'blue' }} >
 			<div>
@@ -47,7 +47,6 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			Remote Media
 			</div>
 			<DisplayMediaStream  mediaStream={remoteMediaStream} />
-			
 		</div>
 		<div>
 			<div>
@@ -55,9 +54,8 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				<button onClick={sendAnswer}>Answer</button>
 			</div>
 			<RTCStateComponent connectionState={state.connectionState} signalingState={state.signalingState} iceConnectionState={state.iceConnectionState} iceGatheringState={state.iceGatheringState}  />
-			<div>{pusherError && pusherError.message}</div>
-			<div>{signalingError && signalingError.message}</div>
-			<div>{webrtcError && webrtcError.message}</div>
+			<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>
+			<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
 		</div>
 	</div> );
     
