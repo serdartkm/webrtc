@@ -1,22 +1,27 @@
 import { h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
-import getMediaStream from './getMediaStream';
-export default  function ({ mediaStreamConstraints }){
+import { useEffect,useState } from 'preact/hooks';
+import getlocalUserMedia from './getMediaStream';
+export default function useLocalMediaStream (mediaStreamConstraints) {
+	
+	
+	const [localMediaStream,setLocalMediaStream]= useState(null);
 
-	const [localMediaStream, setLocalMediaStream]=useState(null);
-	const [error,setError]= useState(null);
+	const [error,setError]=useState(null);
 	useEffect(() => {
-			console.log("useLMS")
-		getMediaStream(mediaStreamConstraints,(error,mediaStream) => {
+
+		getlocalUserMedia(mediaStreamConstraints,(error,media) => {
 			if (error){
-                debugger
 				setError(error);
+			
 			}
 			else {
-				setLocalMediaStream(mediaStream);
+				setLocalMediaStream(media);
+			
 			}
 		});
 
-	},[error,localMediaStream]);
-	return { localMediaStream,error };
+	},[]);
+
+	return { error,localMediaStream };
+
 }

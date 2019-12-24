@@ -23,6 +23,7 @@
     "preact-cli": "^3.0.0-rc.6"
   },
   "dependencies": {
+    "@pusher/chatkit-client": "^1.13.3",
     "preact": "^10.1.0",
     "preact-render-to-string": "^5.1.2"
   }
