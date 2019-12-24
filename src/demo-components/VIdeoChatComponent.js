@@ -1,7 +1,7 @@
 /* eslint-disable react/prefer-stateless-function */
 import { useEffect } from 'preact/hooks';
 import useRTCPeerConnection from '../rtcPeerConnection/useRTCPeerConnection';
-import usePusherSignaling from '../signaling-service/usePusherSignaling';
+import usePusherSignaling from '../signaling-service/useWebRTC';
 import DisplayMediaStream from '../ui-components/DisplayMediaStream';
 import RTCConnectionState from '../ui-components/RTCConnectionState';
 import RTCStateComponent from '../ui-components/RTCStateComponent';
