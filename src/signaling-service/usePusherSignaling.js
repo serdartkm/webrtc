@@ -1,7 +1,8 @@
 import { useState ,useEffect } from 'preact/hooks';
 import usePusher from './usePusher';
 
-export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,targetId,roomId,pusherConfig }){
+export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,targetId,pusherConfig }){
+	const { roomId }=pusherConfig;
 	const { currentUser, error } = usePusher(pusherConfig);
 	const [remoteOffer, setRemoteOffer]=useState(null);
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
@@ -10,7 +11,6 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	useEffect(() => {
 		if (localOffer) {
 			const offer = { sdp: localOffer, userId: currentUser.id, targetId };
-    
 			sendMessage(JSON.stringify(offer));
 		}
 	}, [localOffer]);

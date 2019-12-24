@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-export default function useRTCPeerConnection({ config, localMediaStream }) {
+export default function useWebRTCState({ config, localMediaStream }) {
 
 
 	const [rtcPeerConnection, setRtcPeerConnection] = useState(null);
@@ -65,36 +65,19 @@ export default function useRTCPeerConnection({ config, localMediaStream }) {
 		}
 	}
 
-	function addRemoteCandidate(candidate) {
 
-		if (rtcPeerConnection && candidate){
-		
-			rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch((e) => {
-				setError(e);
-			});
-		}
-	
-	}
-
-	function addRemoteAnswer(remoteAnswer) {
-		return	rtcPeerConnection.setRemoteDescription(
-			new RTCSessionDescription(remoteAnswer)
-		);
-	}
 	return {
-		connectionState, // for ui
-		signalingState, // for ui
-		iceConnectionState,
-		iceGatheringState,
-		remoteTrackAdded,
+		state: {
+			connectionState, // for ui
+			signalingState, // for ui
+			iceConnectionState,
+			iceGatheringState,
+			remoteTrackAdded
+		},
 		error, // for ui
 		remoteMediaStream, // for display
-
-		rtcConfig: {
-			localCandidate, //consumer is signaling server
-			rtcPeerConnection,
-			addRemoteCandidate,
-			addRemoteAnswer
-		}
+		localCandidate, //consumer is signaling server
+		rtcPeerConnection
+		
 	};
 }

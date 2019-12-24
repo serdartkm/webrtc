@@ -25,6 +25,7 @@ export default function usePusher (config){
 				})
 				.catch(err => {
 					setError(err);
+					console.log("pusher error",error);
 				
 				});
 		}

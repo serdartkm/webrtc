@@ -2,23 +2,16 @@
 /* eslint-disable indent */
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import createAnswer from '../rtcPeerConnection/createAnswer';
-import createOffer from '../rtcPeerConnection/createOffer';
-import usePusherSignaling from './usePusherSignaling';
+import createAnswer from './createAnswer';
+import createOffer from './createOffer';
+import useWebRTCState from './useWebRTCState';
 
-export default function usePuherSignaling({
-  pusherConfig,
-  rtcConfig,
-  targetId
-}) {
-  const { roomId } = pusherConfig;
+export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, config,localMediaStream }) {
+
+  const { localCandidate, rtcPeerConnection, state,remoteMediaStream } =useWebRTCState({ config,localMediaStream });
   const [localOffer, setLocalOffer] = useState(null);
   const [localAnswer, setLocalAnswer] = useState(null);
-  const { localCandidate, rtcPeerConnection } = rtcConfig;
-  
- const { remoteAnswer,remoteOffer,remoteCandidate,caller } =usePusherSignaling({ localAnswer,localOffer,localCandidate,targetId,roomId,pusherConfig });
   const [remoteSdpIsSet, setRemoteSdpIsSet] = useState(false);
-
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -78,10 +71,13 @@ export default function usePuherSignaling({
     });
   }
   return {
+    remoteMediaStream,
+    localAnswer,
+    localOffer,
+    localCandidate,
     error,
     sendOffer,
     sendAnswer,
- 
-    caller
+    state
   };
 }
