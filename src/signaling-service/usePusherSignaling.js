@@ -16,51 +16,53 @@ export default function usePuherSignaling({
   const [localAnswer, setLocalAnswer] = useState(null);
   const [remoteOffer, setRemoteOffer] = useState(null);
   const [remoteAnswer, setRemoteAnswer] = useState(null);
-  const [remoteSdpIsSet,setRemoteSdpIsSet] =useState(false);
-  const [remoteSdpError,setRemoteSdpError]=useState(false);
+  const [remoteSdpIsSet, setRemoteSdpIsSet] = useState(false);
   const [remoteCandidate, setRemoteCandidate] = useState(null);
-  const { localCandidate, rtcPeerConnection, addRemoteCandidate,addRemoteAnswer } = rtcConfig;
+  const { localCandidate, rtcPeerConnection } = rtcConfig;
   const { currentUser, error: chatManagerError } = usePusher(pusherConfig);
-  const [caller,setCaller] =useState(null);
+  const [caller, setCaller] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (remoteCandidate && localAnswer && remoteSdpIsSet) {
-      addRemoteCandidate(remoteCandidate);
+    if (remoteOffer) {
+      rtcPeerConnection
+        .setRemoteDescription(new RTCSessionDescription(remoteOffer))
+        .then(() => {
+          setRemoteSdpIsSet(true);
+        })
+        .catch(error => {
+          setError(error);
+        });
     }
-   
-  }, [remoteCandidate, localAnswer, remoteSdpIsSet]);
-
-  useEffect(() => {
     if (remoteAnswer) {
-
-   addRemoteAnswer(remoteAnswer);
-
+      rtcPeerConnection
+        .setRemoteDescription(new RTCSessionDescription(remoteAnswer))
+        .then(() => {
+          setRemoteSdpIsSet(true);
+        })
+        .catch(error => {
+          setError(error);
+        });
     }
-  }, [remoteAnswer]);
+  }, [remoteOffer, remoteAnswer]);
 
   useEffect(() => {
-    if (remoteCandidate && remoteAnswer) {
-     
-      addRemoteCandidate(remoteCandidate);
+    // add iceCandidate() must be called after setting the ansfer and offer with setRemoteDescription
+    if (remoteCandidate && remoteSdpIsSet) {
+      rtcPeerConnection
+        .addIceCandidate(new RTCIceCandidate(remoteCandidate))
+        .catch(e => {
+          setError(e);
+        });
     }
-  },[remoteCandidate,remoteAnswer]);
-useEffect(() => {
-  if (remoteOffer){
-   
-    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(remoteOffer)).then(() => {
-      setRemoteSdpIsSet(true);
-    }).catch((error) => {
-      setRemoteSdpError(error);
-    });
-  }
-},[remoteOffer]);
+  }, [remoteCandidate, remoteSdpIsSet]);
+
   //localOffer,localAnswer,localCandidate
 
   useEffect(() => {
     if (localOffer) {
       const offer = { sdp: localOffer, userId: currentUser.id, targetId };
-	
+
       sendMessage(JSON.stringify(offer));
     }
   }, [localOffer]);
@@ -68,8 +70,7 @@ useEffect(() => {
   useEffect(() => {
     if (localAnswer) {
       const answer = { sdp: localAnswer, userId: currentUser.id, targetId };
-	    sendMessage(JSON.stringify(answer));
-	
+      sendMessage(JSON.stringify(answer));
     }
   }, [localAnswer]);
 
@@ -90,22 +91,17 @@ useEffect(() => {
         roomId,
         hooks: {
           onMessage: message => {
-            
             const { targetId, sdp, userId } = JSON.parse(
               message.parts[0].payload.content
             );
-             
+
             if (targetId === currentUser.id) {
-         
               if (sdp.type === 'offer') {
-				setRemoteOffer(sdp);
-				setCaller(userId);
+                setRemoteOffer(sdp);
+                setCaller(userId);
               } else if (sdp.type === 'answer') {
-              
-           
                 setRemoteAnswer(sdp);
               } else if (sdp.type === undefined) {
-                
                 setRemoteCandidate(sdp);
               }
             }
@@ -117,14 +113,12 @@ useEffect(() => {
   }, [currentUser]);
 
   function sendMessage(msg) {
-    if (msg !==null && msg !==undefined){
+    if (msg !== null && msg !== undefined) {
       currentUser.sendSimpleMessage({
         text: msg,
         roomId: currentUser.rooms[0].id
       });
-
     }
-   
   }
 
   function sendOffer() {
@@ -139,23 +133,20 @@ useEffect(() => {
   function sendAnswer() {
     createAnswer(rtcPeerConnection, (error, answer) => {
       if (error) {
-		
         setError(error);
       } else if (answer) {
-		
         setLocalAnswer(answer);
         sendMessage(localAnswer);
       }
     });
   }
   return {
-    remoteSdpError,
     error,
     currentUser,
     sendMessage,
     sendOffer,
     sendAnswer,
     chatManagerError,
-	caller
+    caller
   };
 }

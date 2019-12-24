@@ -2,6 +2,8 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 export default function useRTCPeerConnection({ config, localMediaStream }) {
+
+
 	const [rtcPeerConnection, setRtcPeerConnection] = useState(null);
 	const [connectionState, setConnectionState] = useState(null);
 	const [iceConnectionState, setIceConnectionState] = useState(null);
@@ -75,7 +77,7 @@ export default function useRTCPeerConnection({ config, localMediaStream }) {
 	}
 
 	function addRemoteAnswer(remoteAnswer) {
-		rtcPeerConnection.setRemoteDescription(
+		return	rtcPeerConnection.setRemoteDescription(
 			new RTCSessionDescription(remoteAnswer)
 		);
 	}
