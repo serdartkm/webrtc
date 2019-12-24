@@ -4,18 +4,19 @@ import DisplayMediaStream from '../ui-components/DisplayMediaStream';
 import RTCStateComponent from '../ui-components/RTCStateComponent';
 import useWebRTC from '../webrtc/useWebRTC';
 import usePusherSignaling from '../signaling-service/usePusherSignaling';
+import usePusher from '../signaling-service/usePusher';
 import config from './servers';
 export default function  VideoChatComponent ({ userId,localMediaStream,mediaError,targetId }) {
-	const pusherConfig ={ roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f' ,
+	const pusherConfig ={
 		instanceLocator: 'v1:us1:655c56ba-ae22-49a7-9cdb-ccd682a39c84',
 		userId,
 		url: 'https://us1.pusherplatform.io/services/chatkit_token_provider/v1/655c56ba-ae22-49a7-9cdb-ccd682a39c84/token' };
-
+	const { currentUser,pusherError } =usePusher(pusherConfig);
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
-	const { remoteAnswer,remoteOffer,remoteCandidate, caller }  =usePusherSignaling({ pusherConfig,targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
-	const { localOffer,localAnswer,localCandidate, state,sendOffer,sendAnswer,remoteMediaStream,error } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,config,localMediaStream });
+	const { remoteAnswer,remoteOffer,remoteCandidate, caller, signalingError }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
+	const { localOffer,localAnswer,localCandidate, state,sendOffer,sendAnswer,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,config,localMediaStream });
 
 	useEffect(() => {
 		if (localAnswer){
@@ -53,7 +54,10 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				<button onClick={sendOffer}>Call</button>
 				<button onClick={sendAnswer}>Answer</button>
 			</div>
-			<RTCStateComponent error={error}  connectionState={state.connectionState} signalingState={state.signalingState} iceConnectionState={state.iceConnectionState} iceGatheringState={state.iceGatheringState}  />
+			<RTCStateComponent connectionState={state.connectionState} signalingState={state.signalingState} iceConnectionState={state.iceConnectionState} iceGatheringState={state.iceGatheringState}  />
+			<div>{pusherError && pusherError.message}</div>
+			<div>{signalingError && signalingError.message}</div>
+			<div>{webrtcError && webrtcError.message}</div>
 		</div>
 	</div> );
     

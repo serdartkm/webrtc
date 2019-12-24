@@ -1,14 +1,12 @@
 import { h } from 'preact';
-import { useEffect, useState, useMemo } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import StateTable from './state-table';
 export default function RTCStateComponent ({ signalingState,connectionState,iceConnectionState,iceGatheringState }){
 
 	const [rtcPeerConStates, setRtcPeerConStates]= useState([]);
 
 	useEffect(() => {
-		console.log('PeerConnection change');
-   
-		
+	
 		const newState ={
 			signalingState: { state: signalingState,changed: false },
 			connectionState: { state: connectionState,changed: true },
@@ -17,7 +15,6 @@ export default function RTCStateComponent ({ signalingState,connectionState,iceC
 			timestamp: { time: new Date().toLocaleString() }
 		};
 		setRtcPeerConStates((preState) => [...preState, newState ]);
-		console.log('PeerConnection change',newState);
 		
 	
 	},[connectionState]);

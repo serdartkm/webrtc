@@ -12,7 +12,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 	const [remoteMediaStream, setRemoteMediaStream] = useState(null);
 	const [remoteTrackAdded, setRemoteTrackAdded] = useState(false);
 	const [localCandidate, setlocalCandidate] = useState(null);
-	const [error, setError] = useState(null);
+	const [webrtcStateError, setWebRtcStateError] = useState(null);
 
 	useEffect(() => {
 		const rtcPeer = new RTCPeerConnection(config);
@@ -45,7 +45,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 		};
 
 		rtcPeer.onerror = e => {
-			setError(e);
+			setWebRtcStateError(e);
 		};
 
 		setRtcPeerConnection(rtcPeer);
@@ -74,7 +74,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			iceGatheringState,
 			remoteTrackAdded
 		},
-		error, // for ui
+		webrtcStateError, // for ui
 		remoteMediaStream, // for display
 		localCandidate, //consumer is signaling server
 		rtcPeerConnection

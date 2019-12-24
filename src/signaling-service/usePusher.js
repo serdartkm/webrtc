@@ -5,7 +5,7 @@ export default function usePusher (config){
 	const { instanceLocator,userId,url } =config;
 	const [chatManager,setChatManager] =useState(null);
 	const [currentUser,setCurrentUser]=useState(null);
-	const [error,setError] =useState(null);
+	const [pusherError,setPusherError] =useState(null);
 
 	useEffect(() => {
 		setChatManager(new ChatManager({
@@ -21,14 +21,11 @@ export default function usePusher (config){
 			chatManager.connect()
 				.then(cUser => {
 					setCurrentUser(cUser);
-				
 				})
 				.catch(err => {
-					setError(err);
-					console.log("pusher error",error);
-				
+					setPusherError(err);
 				});
 		}
 	},[chatManager]);
-	return { currentUser,error };
+	return { currentUser,pusherError };
 }

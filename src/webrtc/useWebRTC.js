@@ -8,11 +8,17 @@ import useWebRTCState from './useWebRTCState';
 
 export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, config,localMediaStream }) {
 
-  const { localCandidate, rtcPeerConnection, state,remoteMediaStream } =useWebRTCState({ config,localMediaStream });
+  const { localCandidate, rtcPeerConnection, state,remoteMediaStream,webrtcStateError } =useWebRTCState({ config,localMediaStream });
   const [localOffer, setLocalOffer] = useState(null);
   const [localAnswer, setLocalAnswer] = useState(null);
   const [remoteSdpIsSet, setRemoteSdpIsSet] = useState(false);
-  const [error, setError] = useState(null);
+  const [webrtcError, setWebrtcError] = useState(null);
+
+  useEffect(() => {
+    if (webrtcStateError){
+      setWebrtcError(webrtcStateError);
+    }
+  },[webrtcStateError]);
 
   useEffect(() => {
     if (remoteOffer) {
@@ -22,7 +28,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
           setRemoteSdpIsSet(true);
         })
         .catch(error => {
-          setError(error);
+          setWebrtcError(error);
         });
     }
     if (remoteAnswer) {
@@ -32,7 +38,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
           setRemoteSdpIsSet(true);
         })
         .catch(error => {
-          setError(error);
+          setWebrtcError(error);
         });
     }
   }, [remoteOffer, remoteAnswer]);
@@ -43,7 +49,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
       rtcPeerConnection
         .addIceCandidate(new RTCIceCandidate(remoteCandidate))
         .catch(e => {
-          setError(e);
+          setWebrtcError(e);
         });
     }
   }, [remoteCandidate, remoteSdpIsSet]);
@@ -54,7 +60,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
   function sendOffer() {
     createOffer(rtcPeerConnection, (error, offer) => {
       if (error) {
-        setError(error);
+        setWebrtcError(error);
       } else if (offer) {
         setLocalOffer(offer);
       }
@@ -63,7 +69,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
   function sendAnswer() {
     createAnswer(rtcPeerConnection, (error, answer) => {
       if (error) {
-        setError(error);
+        setWebrtcError(error);
       } else if (answer) {
         setLocalAnswer(answer);
        
@@ -75,7 +81,7 @@ export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, co
     localAnswer,
     localOffer,
     localCandidate,
-    error,
+    webrtcError,
     sendOffer,
     sendAnswer,
     state
