@@ -2,79 +2,70 @@
 /* eslint-disable indent */
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import createAnswer from './createAnswer';
-import createOffer from './createOffer';
 import useWebRTCState from './useWebRTCState';
 
-export default function useWebRTC({ remoteOffer,remoteAnswer,remoteCandidate, config,localMediaStream }) {
-
-  const { localCandidate, rtcPeerConnection, state,remoteMediaStream,webrtcStateError } =useWebRTCState({ config,localMediaStream });
-  const [localOffer, setLocalOffer] = useState(null);
-  const [localAnswer, setLocalAnswer] = useState(null);
-  const [remoteSdpIsSet, setRemoteSdpIsSet] = useState(false);
+export default function useWebRTC({
+  remoteOffer,
+  remoteAnswer,
+  remoteCandidate,
+  config,
+  localMediaStream,
+  getLocalMedia
+}) {
+  const {
+    localCandidate,
+    localOffer,
+    localAnswer,
+    rtcPeerConnection,
+    state,
+    remoteMediaStream,
+    webrtcStateError,
+    initRTCPeerConnection
+  } = useWebRTCState({ config, localMediaStream });
   const [webrtcError, setWebrtcError] = useState(null);
 
   useEffect(() => {
-    if (webrtcStateError){
+    if (webrtcStateError) {
       setWebrtcError(webrtcStateError);
     }
-  },[webrtcStateError]);
+  }, [webrtcStateError]);
 
   useEffect(() => {
-    if (remoteOffer) {
-      rtcPeerConnection
-        .setRemoteDescription(new RTCSessionDescription(remoteOffer))
-        .then(() => {
-          setRemoteSdpIsSet(true);
-        })
-        .catch(error => {
-          setWebrtcError(error);
-        });
-    }
     if (remoteAnswer) {
       rtcPeerConnection
         .setRemoteDescription(new RTCSessionDescription(remoteAnswer))
         .then(() => {
-          setRemoteSdpIsSet(true);
+  
         })
         .catch(error => {
           setWebrtcError(error);
         });
     }
-  }, [remoteOffer, remoteAnswer]);
+  }, [remoteAnswer]);
 
   useEffect(() => {
     // add iceCandidate() must be called after setting the ansfer and offer with setRemoteDescription
-    if (remoteCandidate && remoteSdpIsSet) {
+    if (remoteCandidate && rtcPeerConnection&& rtcPeerConnection.remoteDescription) {
       rtcPeerConnection
         .addIceCandidate(new RTCIceCandidate(remoteCandidate))
         .catch(e => {
           setWebrtcError(e);
         });
     }
-  }, [remoteCandidate, remoteSdpIsSet]);
+  }, [remoteCandidate,rtcPeerConnection]);
 
   //localOffer,localAnswer,localCandidate
-
+  useEffect(() => {
+    if (rtcPeerConnection) {
+      getLocalMedia();
+    }
+  }, [rtcPeerConnection]);
 
   function sendOffer() {
-    createOffer(rtcPeerConnection, (error, offer) => {
-      if (error) {
-        setWebrtcError(error);
-      } else if (offer) {
-        setLocalOffer(offer);
-      }
-    });
+    initRTCPeerConnection(true);
   }
   function sendAnswer() {
-    createAnswer(rtcPeerConnection, (error, answer) => {
-      if (error) {
-        setWebrtcError(error);
-      } else if (answer) {
-        setLocalAnswer(answer);
-       
-      }
-    });
+    initRTCPeerConnection(false, remoteOffer);
   }
   return {
     remoteMediaStream,

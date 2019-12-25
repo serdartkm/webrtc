@@ -6,7 +6,7 @@ export default function usePusher (config){
 	const [chatManager,setChatManager] =useState(null);
 	const [currentUser,setCurrentUser]=useState(null);
 	const [pusherError,setPusherError] =useState(null);
-
+	const [connecting,setConnecting]=useState(false);
 	
 	useEffect(() => {
 		
@@ -29,16 +29,23 @@ export default function usePusher (config){
     
 	useEffect(() => {
 		if (chatManager){
+			setConnecting(true);
 			chatManager.connect()
 				.then(cUser => {
 					setCurrentUser(cUser);
 				})
 				.catch(err => {
 					setPusherError(err);
-
 					console.log('Pusher errror----',err);
 				});
 		}
 	},[chatManager]);
-	return { currentUser,pusherError };
+
+	useEffect(() => {
+		if (currentUser){
+			setConnecting(false);
+		}
+	},[currentUser]);
+
+	return { currentUser,pusherError,connecting };
 }
