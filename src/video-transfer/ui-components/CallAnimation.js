@@ -14,7 +14,7 @@ const ProgressCircle = ({ selected }) => (
 	/>
 );
 
-export default function ProgressLoader ({ calling, recievingCall }) {
+export default function ProgressLoader ({ calling, recievingCall,target }) {
 	const [selected,setSelected]= useState(0);
 
 	useEffect(() => {
@@ -61,8 +61,8 @@ export default function ProgressLoader ({ calling, recievingCall }) {
 	},[selected,calling, recievingCall]);
 
 	return (
-		<div  style={{ display: 'flex',flexDirection: 'column',alignItems: 'center', alignContent:'center' }}>
-			<div>{calling && <div>Calling to ...</div>}</div>
+		<div  style={{ display: 'flex',flexDirection: 'column',alignItems: 'center', alignContent: 'center' }}>
+			<div>{calling && <div>Calling to ...{target}</div>}</div>
 			<div>
 				<ProgressCircle selected={selected === 4} />
 				<ProgressCircle selected={selected === 3} />
@@ -71,7 +71,7 @@ export default function ProgressLoader ({ calling, recievingCall }) {
 				<ProgressCircle selected={selected === 0} />
 			</div>
 		
-			<div>{recievingCall && <div>Recieving a call from ...</div>}</div>
+			<div>{recievingCall && <div>Recieving a call from ...{target}</div>}</div>
 		</div>
 		
 	);

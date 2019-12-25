@@ -36,7 +36,7 @@ export default function usePusher (config){
 				})
 				.catch(err => {
 					setPusherError(err);
-					console.log('Pusher errror----',err);
+				
 				});
 		}
 	},[chatManager]);

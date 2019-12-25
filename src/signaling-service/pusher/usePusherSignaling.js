@@ -4,7 +4,7 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	const [remoteOffer, setRemoteOffer]=useState(null);
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteCandidate,setRemoteCandidate]=useState(null);
-	const [caller,setCaller]=useState(null);
+
 
 	useEffect(() => {
 		if (localOffer) {
@@ -38,13 +38,13 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 				roomId,
 				hooks: {
 					onMessage: message => {
-						const { targetId, sdp, userId } = JSON.parse(
+						const { targetId, sdp } = JSON.parse(
 							message.parts[0].payload.content
 						);
 						if (targetId === currentUser.id) {
 							if (sdp.type === 'offer') {
 								setRemoteOffer(sdp);
-								setCaller(userId);
+							
 							}
 							else if (sdp.type === 'answer') {
 								setRemoteAnswer(sdp);
@@ -68,5 +68,5 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			});
 		}
 	}
-	return { remoteAnswer,remoteOffer,remoteCandidate,caller };
+	return { remoteAnswer,remoteOffer,remoteCandidate };
 }

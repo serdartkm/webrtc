@@ -1,12 +1,13 @@
 /* eslint-disable react/prefer-stateless-function */
 import { useState,useEffect } from 'preact/hooks';
-import RTCStateComponent from '../ui-components/RTCStateComponent';
-import useWebRTC from '../webrtc/useWebRTC';
-import usePusherSignaling from '../signaling-service/usePusherSignaling';
-import usePusher from '../signaling-service/usePusher';
+import RTCStateComponent from '../ui-components/RTCStateView';
+import useWebRTC from '../../webrtc/useWebRTC';
+import usePusherSignaling from '../../signaling-service/pusher/usePusherSignaling';
+import usePusher from '../../signaling-service/pusher/usePusher';
 import config from './servers';
 import ConnectingToPusher from '../ui-components/ConnectingToPusher';
 import VideoChatView from '../ui-components/VideoChatView';
+import useWebRTCUIState from '../../webrtc/useWebRTCUIState';
 
 export default function  VideoChatComponent ({ userId,localMediaStream,mediaError,targetId, getLocalMedia }) {
 	const pusherConfig ={
@@ -17,9 +18,24 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
-	const { remoteAnswer,remoteOffer,remoteCandidate, caller }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
+	const { remoteAnswer,remoteOffer,remoteCandidate }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
 	const { localOffer,localAnswer,localCandidate, state,sendOffer,sendAnswer,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,config,localMediaStream,getLocalMedia });
-
+	const {
+		disableAnswerButton,
+		disableCallButton,
+		calling,
+		recievingCall,
+		connected,
+		isCaller,
+		isCallee,
+		closeLabel
+	  } = useWebRTCUIState({
+		localAnswer,
+		localOffer,
+		state,
+		remoteAnswer,
+		remoteOffer
+	  });
 	useEffect(() => {
 		if (localAnswer){
 			setAnswer(localAnswer);
@@ -42,17 +58,24 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		return <ConnectingToPusher />;
 	}
 	
-	return (<div style={{ position: 'relative' }}>
+	return (<div style={{ position: 'relative', display: 'flex',flexDirection: 'column', alignItems: 'center', height: '40vh' }}>
 		<VideoChatView
-			state={state}
+			remoteStreamSize={{ height: 300, width: 300 }}
+			localStreamSize={{ height: 100, width: 100 }}
+			target={targetId}
+			name={userId}
+			closeLabel={closeLabel}
 			localMediaStream={localMediaStream}
 			remoteMediaStream={remoteMediaStream}
-			localAnswer={localAnswer}
-			localOffer={localOffer}
-			remoteAnswer={remoteAnswer}
-			remoteOffer={remoteOffer}
 			sendOffer={sendOffer}
 			sendAnswer={sendAnswer}
+			disableAnswerButton={disableAnswerButton}
+			disableCallButton={disableCallButton}
+			calling={calling}
+			recievingCall={recievingCall}
+			isCallee={isCallee}
+			isCaller={isCaller}
+			connected={connected}
 		/>
 		<RTCStateComponent
 			connectionState={state.connectionState}

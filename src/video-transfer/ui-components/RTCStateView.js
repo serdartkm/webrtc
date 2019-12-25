@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import StateTable from './state-table';
-export default function RTCStateComponent ({ signalingState,connectionState,iceConnectionState,iceGatheringState }){
+export default function RTCStateView ({ signalingState,connectionState,iceConnectionState,iceGatheringState }){
 
 	const [rtcPeerConStates, setRtcPeerConStates]= useState([]);
 
