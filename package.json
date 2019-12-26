@@ -3,6 +3,7 @@
   "name": "webrtc",
   "version": "0.0.0",
   "license": "MIT",
+  "main": "src/index.js",
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
     "build": "preact build",
@@ -26,5 +27,7 @@
     "@pusher/chatkit-client": "^1.13.3",
     "preact": "^10.1.0",
     "preact-render-to-string": "^5.1.2"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }
