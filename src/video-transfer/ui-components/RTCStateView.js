@@ -12,7 +12,7 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 			connectionState: { state: connectionState,changed: true },
 			iceGatheringState: { state: iceGatheringState,changed: false },
 			iceConnectionState: { state: iceConnectionState,changed: false },
-			timestamp: { time: new Date().toLocaleString() }
+			timestamp: { time: new Date().toLocaleTimeString() }
 		};
 		setRtcPeerConStates((preState) => [...preState, newState ]);
 		
@@ -25,7 +25,7 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 			connectionState: { state: connectionState,changed: false },
 			iceGatheringState: { state: iceGatheringState,changed: false },
 			iceConnectionState: { state: iceConnectionState,changed: true },
-			timestamp: { time: new Date().toLocaleString()  }
+			timestamp: { time: new Date().toLocaleTimeString()  }
         
 		};
 		setRtcPeerConStates((preState) => [...preState, newState ]);
@@ -36,7 +36,7 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 			connectionState: { state: connectionState,changed: false },
 			iceGatheringState: { state: iceGatheringState,changed: true },
 			iceConnectionState: { state: iceConnectionState,changed: false },
-			timestamp: { time: new Date().toLocaleString()   }
+			timestamp: { time: new Date().toLocaleTimeString()   }
         
 		};
 		setRtcPeerConStates((preState) => [...preState, newState ]);
@@ -47,13 +47,17 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 			connectionState: { state: connectionState,changed: false },
 			iceGatheringState: { state: iceGatheringState,changed: false },
 			iceConnectionState: { state: iceConnectionState,changed: false },
-			timestamp: { time: new Date().toLocaleString()   }
+			timestamp: { time: new Date().toLocaleTimeString()   }
         
 		};
 		setRtcPeerConStates((preState) => [...preState, newState ]);
 	},[signalingState]);
 
 	return (
-		<StateTable rtcPeerConStates={rtcPeerConStates} />
+		<div>
+			<h3>RTCPeerConnection state</h3>
+<StateTable rtcPeerConStates={rtcPeerConStates} />
+		</div>
+		
 	);
 }

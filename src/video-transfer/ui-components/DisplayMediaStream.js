@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useRef, useEffect } from 'preact/hooks';
-
+import './style.css';
 export default function DisplayMediaStream ({ mediaStream, width, height,style, name }) {
 	const videoRef =useRef(null);
 
@@ -12,10 +12,8 @@ export default function DisplayMediaStream ({ mediaStream, width, height,style, 
 	},[mediaStream]);
 	
 	 if (mediaStream !==null){
-		return (<div style={{ display: 'flex',justifyContent: 'center' }}>
-			<h3 style={{ position: 'absolute',bottom: 0,left: 2, color: 'white' }}>{name}</h3>
-			<video  height={height}  autoPlay style={style} ref={videoRef} />
-		</div>);
+		return (<video  width={width} autoPlay  ref={videoRef} />);
+	
 	}
 
 	
