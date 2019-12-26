@@ -58,9 +58,9 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		return <ConnectingToPusher />;
 	}
 	
-	return (<div style={{ position: 'relative', display: 'flex',flexDirection: 'column', alignItems: 'center', height: '40vh' }}>
+	return (<div style={{  height: '50vh', width: 500 }}>
 		<VideoChatView
-			remoteStreamSize={{ height: 300, width: 300 }}
+			remoteStreamSize={{ height: 300, width: 500 }}
 			localStreamSize={{ height: 100, width: 100 }}
 			target={targetId}
 			name={userId}
@@ -77,14 +77,14 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			isCaller={isCaller}
 			connected={connected}
 		/>
-		<RTCStateComponent
+		{/* <RTCStateComponent
 			connectionState={state.connectionState}
 			signalingState={state.signalingState}
 			iceConnectionState={state.iceConnectionState}
 			iceGatheringState={state.iceGatheringState}
 		/>
 		<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>
-		<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
+		<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div> */}
 	</div>
 	);
     
