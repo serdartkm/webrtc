@@ -34,7 +34,6 @@ export default function VideoChatView({
         {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
         </div>
         <div className="remote-media">
-          
           {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
         </div>
       </div>
@@ -61,7 +60,7 @@ export default function VideoChatView({
           {(connected || calling || recievingCall) && (
             <button style={style.btn}  onClick={sendClose}>{closeLabel}</button>
           )}
-        </div> 
+        </div>
     </div>
   );
 }

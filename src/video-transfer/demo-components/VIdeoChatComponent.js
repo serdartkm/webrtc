@@ -1,6 +1,6 @@
 /* eslint-disable react/prefer-stateless-function */
 import { useState,useEffect } from 'preact/hooks';
-//import RTCStateComponent from '../ui-components/RTCStateView';
+import RTCStateComponent from '../ui-components/RTCStateView';
 import useWebRTC from '../../webrtc/useWebRTC';
 import usePusherSignaling from '../../signaling-service/pusher/usePusherSignaling';
 import usePusher from '../../signaling-service/pusher/usePusher';
