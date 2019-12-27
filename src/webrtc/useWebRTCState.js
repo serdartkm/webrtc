@@ -24,7 +24,24 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		}
 	}, [localMediaStream]);
 
+
+	function closeConnection(){
+		if (rtcPeer){
+			rtcPeer.ontrack =null;
+			rtcPeer.onicecandidate =null;
+			rtcPeer.onconnectionstatechange =null;
+			rtcPeer.onicegatheringstatechange =null;
+			rtcPeer.onsignalingstatechange =null;
+			rtcPeer.onnegotiationneeded =null;
+			rtcPeer.close();
+			setRtcPeer(null);
+
+		}
+	
+	
+	}
 	function initRTCPeerConnection(isCaller,remoteOffer){
+	
 		const rtcPeer = new RTCPeerConnection(config);
 		rtcPeer.onicecandidate = e => {
 			if (e.candidate !== null) {
@@ -34,6 +51,10 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		};
 		rtcPeer.onconnectionstatechange = () => {
 			setConnectionState(rtcPeer.connectionState);
+			switch (rtcPeer.connectionState){
+				case 'disconnected':
+					closeConnection();
+			}
 		};
 
 		rtcPeer.oniceconnectionstatechange = () => {
@@ -46,6 +67,7 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 
 		rtcPeer.onsignalingstatechange = () => {
 			setSignalingState(rtcPeer.signalingState);
+			
 		};
 
 		rtcPeer.ontrack = e => {
@@ -56,7 +78,7 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 			if (isCaller){
 				try {
 					const offer =await rtcPeer.createOffer();
-					 await	rtcPeer.setLocalDescription(offer);
+					 await	rtcPeer.setLocalDescription(new RTCSessionDescription(offer));
 					 await setLocalOffer(offer);
 				}
 				catch (error) {
@@ -70,9 +92,11 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 					 const answer =await rtcPeer.createAnswer();
 					 await	rtcPeer.setLocalDescription(answer);
 					 await setLocalAnswer(answer);
+					
 				}
 				catch (error) {
 					setWebRtcStateError(error);
+					
 				}
 			}
 		};
@@ -97,7 +121,9 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		localOffer,
 		localAnswer,
 		localCandidate,
-		initRTCPeerConnection
+		initRTCPeerConnection,
+		closeConnection
+		
 		
 	};
 }

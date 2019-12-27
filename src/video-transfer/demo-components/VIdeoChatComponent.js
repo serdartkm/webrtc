@@ -18,8 +18,9 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
-	const { remoteAnswer,remoteOffer,remoteCandidate }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate });
-	const { localOffer,localAnswer,localCandidate, state,sendOffer,sendAnswer,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,config,localMediaStream,getLocalMedia });
+	const [close,setClose]=useState(false);
+	const { remoteAnswer,remoteOffer,remoteCandidate, remoteClose }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate,close });
+	const { localOffer,localAnswer,localCandidate,localClose, state,sendOffer,sendAnswer,sendClose,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,remoteClose,config,localMediaStream,getLocalMedia });
 	const {
 		disableAnswerButton,
 		disableCallButton,
@@ -30,6 +31,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		isCallee,
 		closeLabel
 	  } = useWebRTCUIState({
+		  close,
 		localAnswer,
 		localOffer,
 		state,
@@ -41,7 +43,11 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setAnswer(localAnswer);
 		}
 	},[localAnswer]);
-
+	useEffect(() => {
+		if (localClose  || remoteClose){
+			setClose(true);
+		}
+	},[localClose,remoteClose]);
 	useEffect(() => {
 		if (localOffer){
 			setOffer(localOffer);
@@ -69,6 +75,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				localMediaStream={localMediaStream}
 				remoteMediaStream={remoteMediaStream}
 				sendOffer={sendOffer}
+				sendClose={sendClose}
 				sendAnswer={sendAnswer}
 				disableAnswerButton={disableAnswerButton}
 				disableCallButton={disableCallButton}

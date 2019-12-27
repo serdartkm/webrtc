@@ -23,7 +23,8 @@ export default function VideoChatView({
   target,
   name,
   remoteStreamSize,
-  localStreamSize
+  localStreamSize,
+  closeConnection
 }) {
   return (
     <div className="video-chat-view">
