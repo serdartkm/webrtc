@@ -1,32 +1,43 @@
 import { useState ,useEffect } from 'preact/hooks';
 
-export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,targetId,currentUser,roomId }){
+export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,close,targetId,currentUser,roomId }){
 	const [remoteOffer, setRemoteOffer]=useState(null);
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteCandidate,setRemoteCandidate]=useState(null);
+	const [remoteClose,setRemoteClose]=useState(false);
 
 
 	useEffect(() => {
 		if (localOffer) {
-			const offer = { sdp: localOffer, userId: currentUser.id, targetId };
+			const offer = { sdp: localOffer, userId: currentUser.id, targetId, type: 'offer' };
 			sendMessage(JSON.stringify(offer));
 		}
 	}, [localOffer]);
     
 	useEffect(() => {
 		if (localAnswer) {
-			const answer = { sdp: localAnswer, userId: currentUser.id, targetId };
+			const answer = { sdp: localAnswer, userId: currentUser.id, targetId,type: 'answer'  };
 			sendMessage(JSON.stringify(answer));
+		
 		}
 	}, [localAnswer]);
-    
+	useEffect(() => {
+		if (close) {
+			const close = { userId: currentUser.id, targetId,type: 'close'  };
+			sendMessage(JSON.stringify(close));
+		
+		}
+
+	},[close]);
 	useEffect(() => {
 		if (localCandidate) {
 			const candidate = {
 				sdp: localCandidate,
 				userId: currentUser.id,
-				targetId
+				targetId,
+				type: 'candidate'
 			};
+			
 			sendMessage(JSON.stringify(candidate));
 		}
 	}, [localCandidate]);
@@ -38,19 +49,23 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 				roomId,
 				hooks: {
 					onMessage: message => {
-						const { targetId, sdp } = JSON.parse(
+						const { targetId, sdp,type } = JSON.parse(
 							message.parts[0].payload.content
 						);
 						if (targetId === currentUser.id) {
-							if (sdp.type === 'offer') {
+							if (type === 'offer') {
 								setRemoteOffer(sdp);
 							
 							}
-							else if (sdp.type === 'answer') {
+							else if (type === 'answer') {
 								setRemoteAnswer(sdp);
 							}
-							else if (sdp.type === undefined) {
+							else if (type === 'candidate') {
 								setRemoteCandidate(sdp);
+							}
+							else if (type ==='close'){
+								setRemoteClose(true);
+								
 							}
 						}
 					}
@@ -68,5 +83,5 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			});
 		}
 	}
-	return { remoteAnswer,remoteOffer,remoteCandidate };
+	return { remoteAnswer,remoteOffer,remoteCandidate, remoteClose };
 }
