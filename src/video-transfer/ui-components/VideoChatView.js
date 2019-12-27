@@ -23,8 +23,7 @@ export default function VideoChatView({
   target,
   name,
   remoteStreamSize,
-  localStreamSize,
-  closeConnection
+  localStreamSize
 }) {
   return (
     <div className="video-chat-view">
@@ -61,7 +60,7 @@ export default function VideoChatView({
           {(connected || calling || recievingCall) && (
             <button style={style.btn}  onClick={sendClose}>{closeLabel}</button>
           )}
-        </div> 
+        </div>
     </div>
   );
 }

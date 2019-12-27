@@ -24,22 +24,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		}
 	}, [localMediaStream]);
 
-
-	function closeConnection(){
-		if (rtcPeer){
-			rtcPeer.ontrack =null;
-			rtcPeer.onicecandidate =null;
-			rtcPeer.onconnectionstatechange =null;
-			rtcPeer.onicegatheringstatechange =null;
-			rtcPeer.onsignalingstatechange =null;
-			rtcPeer.onnegotiationneeded =null;
-			rtcPeer.close();
-			setRtcPeer(null);
-
-		}
-	
-	
-	}
 	function initRTCPeerConnection(isCaller,remoteOffer){
 	
 		const rtcPeer = new RTCPeerConnection(config);
@@ -51,14 +35,13 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		};
 		rtcPeer.onconnectionstatechange = () => {
 			setConnectionState(rtcPeer.connectionState);
-			switch (rtcPeer.connectionState){
-				case 'disconnected':
-					closeConnection();
-			}
+			
 		};
 
 		rtcPeer.oniceconnectionstatechange = () => {
 			setIceConnectionState(rtcPeer.iceConnectionState);
+
+		
 		};
 
 		rtcPeer.onicegatheringstatechange = () => {
@@ -67,13 +50,40 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 
 		rtcPeer.onsignalingstatechange = () => {
 			setSignalingState(rtcPeer.signalingState);
-			
+			switch (rtcPeer.connectionState){
+				case 'closed':
+				    rtcPeer.ontrack =null;
+					rtcPeer.onicecandidate =null;
+					rtcPeer.onconnectionstatechange =null;
+					rtcPeer.onicegatheringstatechange =null;
+					rtcPeer.onsignalingstatechange =null;
+					rtcPeer.onnegotiationneeded =null;
+					setRtcPeer(null);
+					setRemoteMediaStream(null);
+					setConnectionState(null);
+					setIceConnectionState(null);
+					setIceGatheringState(null);
+					setSignalingState(null);
+					setLocalAnswer(null);
+					setLocalOffer(null);
+					setlocalCandidate(null);
+			}
 		};
 
 		rtcPeer.ontrack = e => {
 			setRemoteMediaStream(e.streams[0]);
 			setRemoteTrackAdded(true);
+
 		};
+		// rtcPeer.onremovetrack = () => {
+		// 	debugger;
+		
+		// };
+
+		// rtcPeer.onremovestream =() => {
+		
+		// 	debugger;
+		// };
 		rtcPeer.onnegotiationneeded= async() => {
 			if (isCaller){
 				try {
@@ -121,9 +131,7 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		localOffer,
 		localAnswer,
 		localCandidate,
-		initRTCPeerConnection,
-		closeConnection
-		
-		
+		initRTCPeerConnection
+
 	};
 }

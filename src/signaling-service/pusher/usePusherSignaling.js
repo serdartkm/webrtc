@@ -25,7 +25,10 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 		if (close) {
 			const close = { userId: currentUser.id, targetId,type: 'close'  };
 			sendMessage(JSON.stringify(close));
-		
+			setRemoteAnswer(null);
+			setRemoteOffer(null);
+			setRemoteCandidate(null);
+			setRemoteClose(false);
 		}
 
 	},[close]);
@@ -76,6 +79,7 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	}, [currentUser]);
 
 	function sendMessage(msg) {
+	
 		if (msg !== null && msg !== undefined) {
 			currentUser.sendSimpleMessage({
 				text: msg,
