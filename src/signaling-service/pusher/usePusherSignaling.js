@@ -107,13 +107,13 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	function sendMessage(msg) {
 	
 		if (msg !== null && msg !== undefined) {
-	    const result =		currentUser.sendSimpleMessage({
+	  	currentUser.sendSimpleMessage({
 				text: msg,
 				roomId: currentUser.rooms[0].id
 			}).then((response) => {
 				
 			}).catch((e) => {
-				debugger;
+			
 			});
 
 		}

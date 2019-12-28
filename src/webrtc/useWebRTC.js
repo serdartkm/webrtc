@@ -1,10 +1,10 @@
 /* eslint-disable brace-style */
 /* eslint-disable indent */
-import { h } from "preact";
-import { useEffect, useState } from "preact/hooks";
-import useWebRTCState from "./useWebRTCState";
+import { useEffect, useState } from 'preact/hooks';
+import useWebRTCState from './useWebRTCState';
 
 export default function useWebRTC({
+  //state
   remoteOffer,
   remoteAnswer,
   remoteCandidate,
@@ -14,15 +14,18 @@ export default function useWebRTC({
   getLocalMedia
 }) {
   const {
+    // state
     localCandidate,
     localOffer,
     localAnswer,
-    rtcPeerConnection,
     state,
     remoteMediaStream,
     webrtcStateError,
+    //object
+    rtcPeerConnection,
+    //function
     initRTCPeerConnection
-  } = useWebRTCState({ config, localMediaStream });
+  } = useWebRTCState({ config, localMediaStream, remoteOffer });
   const [webrtcError, setWebrtcError] = useState(null);
   const [localClose, setLocalClose] = useState(false);
   const [localDecline, setLocalDecline] = useState(false);
@@ -96,7 +99,6 @@ export default function useWebRTC({
         .then(() => {})
         .catch(e => {
           setWebrtcError(e);
-          debugger;
         });
     }
   }, [remoteCandidate, rtcPeerConnection, localAnswer]);
@@ -112,6 +114,8 @@ export default function useWebRTC({
   function sendOffer() {
     initRTCPeerConnection(true);
   }
+
+
   function sendAnswer() {
     initRTCPeerConnection(false, remoteOffer);
   }
