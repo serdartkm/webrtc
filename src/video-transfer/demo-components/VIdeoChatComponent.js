@@ -40,6 +40,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 	useEffect(() => {
 		if (localClose){
 			setClose(true);
+			resetState();
 		}
 	},[localClose]);
 	useEffect(() => {
@@ -53,8 +54,16 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setCandidate(localCandidate);
 		}
 	},[localCandidate]);
-
-	return ( <div>
+	function resetState(){
+	  setTimeout(() => {
+			setAnswer(null);
+			setCandidate(null);
+			setOffer(null);
+			setClose(false);
+	  },0);
+	
+	}
+	return [ <div>
 		<div style={{  height: '50vh', width: 600 }}>
 			<VideoChatView
 				remoteStreamSize={{ height: 300, width: 600 }}
@@ -75,18 +84,19 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				isCaller={isCaller}
 				connected={connected}
 			/>
-			<RTCStateComponent
-				connectionState={state.connectionState}
-				signalingState={state.signalingState}
-				iceConnectionState={state.iceConnectionState}
-				iceGatheringState={state.iceGatheringState}
-			/>
-			<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>
-			<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
-
-		</div>
+		</div>,
+		<RTCStateComponent
+			connectionState={state.connectionState}
+			signalingState={state.signalingState}
+			iceConnectionState={state.iceConnectionState}
+			iceGatheringState={state.iceGatheringState}
+		/>,
+		<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>,
+		<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
 
 	</div>
-	);
+
+	
+	];
     
 }

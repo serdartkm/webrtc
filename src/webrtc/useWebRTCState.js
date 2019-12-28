@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-export default function useWebRTCState({ config, localMediaStream,isCaller }) {
+export default function useWebRTCState({ config, localMediaStream }) {
 
 	const [rtcPeer, setRtcPeer] = useState(null);
 	const [connectionState, setConnectionState] = useState(null);
@@ -15,7 +15,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 	const [localOffer,setLocalOffer] =useState(null);
 	const [localAnswer,setLocalAnswer] =useState(null);
 
-
 	useEffect(() => {
 		if (localMediaStream && rtcPeer && rtcPeer.getSenders().length === 0) {
 			localMediaStream
@@ -25,7 +24,7 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 	}, [localMediaStream]);
 
 	function initRTCPeerConnection(isCaller,remoteOffer){
-	
+
 		const rtcPeer = new RTCPeerConnection(config);
 		rtcPeer.onicecandidate = e => {
 			if (e.candidate !== null) {
@@ -35,19 +34,13 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		};
 		rtcPeer.onconnectionstatechange = () => {
 			setConnectionState(rtcPeer.connectionState);
-			
 		};
-
 		rtcPeer.oniceconnectionstatechange = () => {
 			setIceConnectionState(rtcPeer.iceConnectionState);
-
-		
 		};
-
 		rtcPeer.onicegatheringstatechange = () => {
 			setIceGatheringState(rtcPeer.iceConnectionState);
 		};
-
 		rtcPeer.onsignalingstatechange = () => {
 			setSignalingState(rtcPeer.signalingState);
 			switch (rtcPeer.connectionState){
@@ -67,23 +60,14 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 					setLocalAnswer(null);
 					setLocalOffer(null);
 					setlocalCandidate(null);
+					setWebRtcStateError(null);
 			}
 		};
 
 		rtcPeer.ontrack = e => {
 			setRemoteMediaStream(e.streams[0]);
 			setRemoteTrackAdded(true);
-
 		};
-		// rtcPeer.onremovetrack = () => {
-		// 	debugger;
-		
-		// };
-
-		// rtcPeer.onremovestream =() => {
-		
-		// 	debugger;
-		// };
 		rtcPeer.onnegotiationneeded= async() => {
 			if (isCaller){
 				try {
@@ -93,20 +77,19 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 				}
 				catch (error) {
 					setWebRtcStateError(error);
+					debugger
 				}
 			}
-
 			else if (!isCaller){
 				try {
 					 await rtcPeer.setRemoteDescription(new RTCSessionDescription(remoteOffer));
 					 const answer =await rtcPeer.createAnswer();
 					 await	rtcPeer.setLocalDescription(answer);
 					 await setLocalAnswer(answer);
-					
 				}
 				catch (error) {
+					debugger
 					setWebRtcStateError(error);
-					
 				}
 			}
 		};
@@ -114,7 +97,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		rtcPeer.onerror = e => {
 			setWebRtcStateError(e);
 		};
-
 		setRtcPeer(rtcPeer);
 	}
 	return {
@@ -132,6 +114,5 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		localAnswer,
 		localCandidate,
 		initRTCPeerConnection
-
 	};
 }

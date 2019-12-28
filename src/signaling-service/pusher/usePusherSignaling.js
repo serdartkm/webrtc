@@ -25,10 +25,7 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 		if (close) {
 			const close = { userId: currentUser.id, targetId,type: 'close'  };
 			sendMessage(JSON.stringify(close));
-			setRemoteAnswer(null);
-			setRemoteOffer(null);
-			setRemoteCandidate(null);
-			setRemoteClose(false);
+			resetState();
 		}
 
 	},[close]);
@@ -57,10 +54,12 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 						);
 						if (targetId === currentUser.id) {
 							if (type === 'offer') {
+							
 								setRemoteOffer(sdp);
 							
 							}
 							else if (type === 'answer') {
+							
 								setRemoteAnswer(sdp);
 							}
 							else if (type === 'candidate') {
@@ -68,7 +67,7 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 							}
 							else if (type ==='close'){
 								setRemoteClose(true);
-								
+								resetState();
 							}
 						}
 					}
@@ -77,15 +76,30 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			});
 		}
 	}, [currentUser]);
-
+	useEffect(() => {
+	
+	},[remoteClose]);
 	function sendMessage(msg) {
 	
 		if (msg !== null && msg !== undefined) {
-			currentUser.sendSimpleMessage({
+	    const result =		currentUser.sendSimpleMessage({
 				text: msg,
 				roomId: currentUser.rooms[0].id
-			});
+			}).then((response)=>{
+				
+			}).catch((e)=>{
+				debugger
+			})
+
 		}
+	}
+	function resetState (){
+		setTimeout(() => {
+			setRemoteAnswer(null);
+			setRemoteOffer(null);
+			setRemoteCandidate(null);
+			setRemoteClose(false);
+		},0);
 	}
 	return { remoteAnswer,remoteOffer,remoteCandidate, remoteClose };
 }
