@@ -1,99 +1,25 @@
-import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+import useIceState from './useIceState';
+import useNegotiationNeeded from './useNegotiationNeededState';
+import useTrackState from './useTrackState';
+import useConnectionState from './useConnectionState';
 
-export default function useWebRTCState({ config, localMediaStream }) {
-
+export default function useWebRTCState({ config, localMediaStream,remoteOffer }) {
 	const [rtcPeer, setRtcPeer] = useState(null);
-	const [connectionState, setConnectionState] = useState(null);
-	const [iceConnectionState, setIceConnectionState] = useState(null);
-	const [iceGatheringState, setIceGatheringState] = useState(null);
-	const [signalingState, setSignalingState] = useState(null);
-	const [remoteMediaStream, setRemoteMediaStream] = useState(null);
-	const [remoteTrackAdded, setRemoteTrackAdded] = useState(false);
-	const [localCandidate, setlocalCandidate] = useState(null);
+	const { iceConnectionState,iceGatheringState, localCandidate }= useIceState(rtcPeer);
+	const { localAnswer,localAnswerError,localOffer,localOfferError } =useNegotiationNeeded({ rtcPeerConnection: rtcPeer,remoteOffer });
+	const { remoteMediaStream } =useTrackState({ localMediaStream,rtcPeerConnection: rtcPeer });
+	const { connectionState,signalingState,clean }= useConnectionState(rtcPeer);
 	const [webrtcStateError, setWebRtcStateError] = useState(null);
-	const [localOffer,setLocalOffer] =useState(null);
-	const [localAnswer,setLocalAnswer] =useState(null);
 
 	useEffect(() => {
-		if (localMediaStream && rtcPeer && rtcPeer.getSenders().length === 0) {
-			localMediaStream
-				.getVideoTracks()
-				.forEach(t => rtcPeer.addTrack(t,localMediaStream));
+		if (clean){
+			setRtcPeer(null);
 		}
-	}, [localMediaStream]);
+	},[clean]);
 
 	function initRTCPeerConnection(isCaller,remoteOffer){
-
 		const rtcPeer = new RTCPeerConnection(config);
-		rtcPeer.onicecandidate = e => {
-			if (e.candidate !== null) {
-				const { candidate } = e;
-				setlocalCandidate(candidate);
-			}
-		};
-		rtcPeer.onconnectionstatechange = () => {
-			setConnectionState(rtcPeer.connectionState);
-		};
-		rtcPeer.oniceconnectionstatechange = () => {
-			setIceConnectionState(rtcPeer.iceConnectionState);
-		};
-		rtcPeer.onicegatheringstatechange = () => {
-			setIceGatheringState(rtcPeer.iceConnectionState);
-		};
-		rtcPeer.onsignalingstatechange = () => {
-			setSignalingState(rtcPeer.signalingState);
-			switch (rtcPeer.connectionState){
-				case 'closed':
-				    rtcPeer.ontrack =null;
-					rtcPeer.onicecandidate =null;
-					rtcPeer.onconnectionstatechange =null;
-					rtcPeer.onicegatheringstatechange =null;
-					rtcPeer.onsignalingstatechange =null;
-					rtcPeer.onnegotiationneeded =null;
-					setRtcPeer(null);
-					setRemoteMediaStream(null);
-					setConnectionState(null);
-					setIceConnectionState(null);
-					setIceGatheringState(null);
-					setSignalingState(null);
-					setLocalAnswer(null);
-					setLocalOffer(null);
-					setlocalCandidate(null);
-					setWebRtcStateError(null);
-			}
-		};
-
-		rtcPeer.ontrack = e => {
-			setRemoteMediaStream(e.streams[0]);
-			setRemoteTrackAdded(true);
-		};
-		rtcPeer.onnegotiationneeded= async() => {
-			if (isCaller){
-				try {
-					const offer =await rtcPeer.createOffer();
-					 await	rtcPeer.setLocalDescription(new RTCSessionDescription(offer));
-					 await setLocalOffer(offer);
-				}
-				catch (error) {
-					setWebRtcStateError(error);
-					debugger
-				}
-			}
-			else if (!isCaller){
-				try {
-					 await rtcPeer.setRemoteDescription(new RTCSessionDescription(remoteOffer));
-					 const answer =await rtcPeer.createAnswer();
-					 await	rtcPeer.setLocalDescription(answer);
-					 await setLocalAnswer(answer);
-				}
-				catch (error) {
-					debugger
-					setWebRtcStateError(error);
-				}
-			}
-		};
-
 		rtcPeer.onerror = e => {
 			setWebRtcStateError(e);
 		};
@@ -104,10 +30,11 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			connectionState,
 			signalingState,
 			iceConnectionState,
-			iceGatheringState,
-			remoteTrackAdded
+			iceGatheringState
 		},
 		webrtcStateError,
+		localAnswerError,
+		localOfferError,
 		remoteMediaStream,
 		rtcPeerConnection: rtcPeer,
 		localOffer,

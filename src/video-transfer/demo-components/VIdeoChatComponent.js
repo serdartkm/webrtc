@@ -13,8 +13,9 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
 	const [close,setClose]=useState(false);
-	const { remoteAnswer,remoteOffer,remoteCandidate, remoteClose }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate,close });
-	const { localOffer,localAnswer,localCandidate,localClose, state,sendOffer,sendAnswer,sendClose,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,remoteClose,config,localMediaStream,getLocalMedia });
+	const [decline,setDecline]=useState(false);
+	const { remoteAnswer,remoteOffer,remoteCandidate, remoteClose }  =usePusherSignaling({ currentUser,roomId: '96d32222-d450-4341-9dc0-b3eccec9e37f',targetId,localAnswer: answer,localOffer: offer,localCandidate: candidate,localClose: close,localDecline: decline });
+	const { localOffer,localAnswer,localCandidate,localClose,localDecline, state,sendOffer,sendAnswer,sendClose,sendDecline,remoteMediaStream,webrtcError } =useWebRTC({ remoteAnswer,remoteCandidate,remoteOffer,remoteClose,config,localMediaStream,getLocalMedia });
 	const {
 		disableAnswerButton,
 		disableCallButton,
@@ -25,9 +26,10 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		isCallee,
 		closeLabel
 	  } = useWebRTCUIState({
-		  close,
+		localClose,
 		localAnswer,
 		localOffer,
+		localDecline,
 		state,
 		remoteAnswer,
 		remoteOffer
@@ -37,12 +39,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setAnswer(localAnswer);
 		}
 	},[localAnswer]);
-	useEffect(() => {
-		if (localClose){
-			setClose(true);
-			resetState();
-		}
-	},[localClose]);
+
 	useEffect(() => {
 		if (localOffer){
 			setOffer(localOffer);
@@ -54,6 +51,20 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setCandidate(localCandidate);
 		}
 	},[localCandidate]);
+
+	useEffect(() => {
+		if (localClose){
+			setClose(true);
+			resetState();
+		}
+	},[localClose]);
+	useEffect(() => {
+		if (localDecline){
+			setDecline(true);
+			resetState();
+		}
+	},[localDecline]);
+
 	function resetState(){
 	  setTimeout(() => {
 			setAnswer(null);
@@ -61,7 +72,6 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setOffer(null);
 			setClose(false);
 	  },0);
-	
 	}
 	return [ <div>
 		<div style={{  height: '50vh', width: 600 }}>
@@ -76,6 +86,7 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				sendOffer={sendOffer}
 				sendClose={sendClose}
 				sendAnswer={sendAnswer}
+				sendDecline={sendDecline}
 				disableAnswerButton={disableAnswerButton}
 				disableCallButton={disableCallButton}
 				calling={calling}

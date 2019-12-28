@@ -11,19 +11,23 @@ const style = {
   }
 };
 export default function VideoChatView({
+  // state
+  remoteMediaStream,
+  localMediaStream,
   calling,
   recievingCall,
   connected,
   closeLabel,
-  sendOffer,
-  sendAnswer,
-  sendClose,
-  remoteMediaStream,
-  localMediaStream,
   target,
   name,
   remoteStreamSize,
-  localStreamSize
+  localStreamSize,
+  //functions
+  sendOffer,
+  sendAnswer,
+  sendClose,
+sendDecline
+ 
 }) {
   return (
     <div className="video-chat-view">
@@ -57,7 +61,7 @@ export default function VideoChatView({
             </button>
           )}
           {(connected || calling || recievingCall) && (
-            <button style={style.btn}  onClick={sendClose}>{closeLabel}</button>
+            <button style={style.btn}  onClick={closeLabel ==='Decline' ? sendDecline: sendClose}>{closeLabel}</button>
           )}
         </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState ,useEffect } from 'preact/hooks';
 
-export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,close,targetId,currentUser,roomId }){
+export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,localDecline,localClose,targetId,currentUser,roomId }){
 	const [remoteOffer, setRemoteOffer]=useState(null);
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteCandidate,setRemoteCandidate]=useState(null);
@@ -8,10 +8,17 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 
 
 	useEffect(() => {
+		if (!localAnswer && !localAnswer && !localCandidate){
+			resetState();
+		}
+	},[localOffer,localCandidate,localAnswer]);
+
+	useEffect(() => {
 		if (localOffer) {
 			const offer = { sdp: localOffer, userId: currentUser.id, targetId, type: 'offer' };
 			sendMessage(JSON.stringify(offer));
 		}
+	
 	}, [localOffer]);
     
 	useEffect(() => {
@@ -20,15 +27,10 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			sendMessage(JSON.stringify(answer));
 		
 		}
+	
 	}, [localAnswer]);
-	useEffect(() => {
-		if (close) {
-			const close = { userId: currentUser.id, targetId,type: 'close'  };
-			sendMessage(JSON.stringify(close));
-			resetState();
-		}
 
-	},[close]);
+
 	useEffect(() => {
 		if (localCandidate) {
 			const candidate = {
@@ -42,6 +44,25 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 		}
 	}, [localCandidate]);
 
+	useEffect(() => {
+	
+		if (localClose) {
+			const close = { userId: currentUser.id, targetId,type: 'close'  };
+			sendMessage(JSON.stringify(close));
+			resetState();
+		}
+
+	},[localClose]);
+
+	useEffect(() => {
+
+		if (localDecline){
+			const decline = { userId: currentUser.id, targetId,type: 'decline'  };
+			sendMessage(JSON.stringify(decline));
+			resetState();
+		}
+
+	},[localDecline]);
 
 	useEffect(() => {
 		if (currentUser) {
@@ -69,6 +90,10 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 								setRemoteClose(true);
 								resetState();
 							}
+							else if (type ==='decline'){
+								setRemoteClose(true);
+								resetState();
+							}
 						}
 					}
 				},
@@ -82,14 +107,14 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 	function sendMessage(msg) {
 	
 		if (msg !== null && msg !== undefined) {
-	    const result =		currentUser.sendSimpleMessage({
+	  	currentUser.sendSimpleMessage({
 				text: msg,
 				roomId: currentUser.rooms[0].id
-			}).then((response)=>{
+			}).then((response) => {
 				
-			}).catch((e)=>{
-				debugger
-			})
+			}).catch((e) => {
+			
+			});
 
 		}
 	}
