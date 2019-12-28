@@ -15,6 +15,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 	const [localOffer,setLocalOffer] =useState(null);
 	const [localAnswer,setLocalAnswer] =useState(null);
 
+
 	useEffect(() => {
 		if (localMediaStream && rtcPeer && rtcPeer.getSenders().length === 0) {
 			localMediaStream
@@ -34,6 +35,10 @@ export default function useWebRTCState({ config, localMediaStream }) {
 		};
 		rtcPeer.onconnectionstatechange = () => {
 			setConnectionState(rtcPeer.connectionState);
+			switch (rtcPeer.connectionState){
+				case 'failed':
+				 resetState();
+			}
 		};
 		rtcPeer.oniceconnectionstatechange = () => {
 			setIceConnectionState(rtcPeer.iceConnectionState);
@@ -43,24 +48,9 @@ export default function useWebRTCState({ config, localMediaStream }) {
 		};
 		rtcPeer.onsignalingstatechange = () => {
 			setSignalingState(rtcPeer.signalingState);
-			switch (rtcPeer.connectionState){
+			switch (rtcPeer.signalingState){
 				case 'closed':
-				    rtcPeer.ontrack =null;
-					rtcPeer.onicecandidate =null;
-					rtcPeer.onconnectionstatechange =null;
-					rtcPeer.onicegatheringstatechange =null;
-					rtcPeer.onsignalingstatechange =null;
-					rtcPeer.onnegotiationneeded =null;
-					setRtcPeer(null);
-					setRemoteMediaStream(null);
-					setConnectionState(null);
-					setIceConnectionState(null);
-					setIceGatheringState(null);
-					setSignalingState(null);
-					setLocalAnswer(null);
-					setLocalOffer(null);
-					setlocalCandidate(null);
-					setWebRtcStateError(null);
+				 resetState();
 			}
 		};
 
@@ -70,27 +60,10 @@ export default function useWebRTCState({ config, localMediaStream }) {
 		};
 		rtcPeer.onnegotiationneeded= async() => {
 			if (isCaller){
-				try {
-					const offer =await rtcPeer.createOffer();
-					 await	rtcPeer.setLocalDescription(new RTCSessionDescription(offer));
-					 await setLocalOffer(offer);
-				}
-				catch (error) {
-					setWebRtcStateError(error);
-					debugger
-				}
+				createOffer();
 			}
 			else if (!isCaller){
-				try {
-					 await rtcPeer.setRemoteDescription(new RTCSessionDescription(remoteOffer));
-					 const answer =await rtcPeer.createAnswer();
-					 await	rtcPeer.setLocalDescription(answer);
-					 await setLocalAnswer(answer);
-				}
-				catch (error) {
-					debugger
-					setWebRtcStateError(error);
-				}
+				createAnswer();
 			}
 		};
 
@@ -98,6 +71,48 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			setWebRtcStateError(e);
 		};
 		setRtcPeer(rtcPeer);
+
+		async 	function createOffer (){
+			try {
+				const offer =await rtcPeer.createOffer();
+			 await	rtcPeer.setLocalDescription(new RTCSessionDescription(offer));
+			 await setLocalOffer(offer);
+			}
+			catch (error) {
+				setWebRtcStateError(error);
+				debugger;
+			}
+		}
+		async 	function createAnswer (){
+			try {
+				await rtcPeer.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+				const answer =await rtcPeer.createAnswer();
+				await	rtcPeer.setLocalDescription(answer);
+				await setLocalAnswer(answer);
+		   }
+		   catch (error) {
+			   debugger;
+			   setWebRtcStateError(error);
+		   }
+		}
+		function resetState (){
+			rtcPeer.ontrack =null;
+			rtcPeer.onicecandidate =null;
+			rtcPeer.onconnectionstatechange =null;
+			rtcPeer.onicegatheringstatechange =null;
+			rtcPeer.onsignalingstatechange =null;
+			rtcPeer.onnegotiationneeded =null;
+			setRtcPeer(null);
+			setRemoteMediaStream(null);
+			setConnectionState(null);
+			setIceConnectionState(null);
+			setIceGatheringState(null);
+			setSignalingState(null);
+			setLocalAnswer(null);
+			setLocalOffer(null);
+			setlocalCandidate(null);
+			setWebRtcStateError(null);
+		}
 	}
 	return {
 		state: {
@@ -106,6 +121,7 @@ export default function useWebRTCState({ config, localMediaStream }) {
 			iceConnectionState,
 			iceGatheringState,
 			remoteTrackAdded
+		
 		},
 		webrtcStateError,
 		remoteMediaStream,
