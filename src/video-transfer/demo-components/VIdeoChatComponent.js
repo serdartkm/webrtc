@@ -3,18 +3,12 @@ import { useState,useEffect } from 'preact/hooks';
 import RTCStateComponent from '../ui-components/RTCStateView';
 import useWebRTC from '../../webrtc/useWebRTC';
 import usePusherSignaling from '../../signaling-service/pusher/usePusherSignaling';
-import usePusher from '../../signaling-service/pusher/usePusher';
 import config from './servers';
-import ConnectingToPusher from '../ui-components/ConnectingToPusher';
 import VideoChatView from '../ui-components/VideoChatView';
 import useWebRTCUIState from '../../webrtc/useWebRTCUIState';
 
-export default function  VideoChatComponent ({ userId,localMediaStream,mediaError,targetId, getLocalMedia }) {
-	const pusherConfig ={
-		instanceLocator: 'v1:us1:655c56ba-ae22-49a7-9cdb-ccd682a39c84',
-		userId,
-		url: 'https://us1.pusherplatform.io/services/chatkit_token_provider/v1/655c56ba-ae22-49a7-9cdb-ccd682a39c84/token' };
-	const { currentUser,pusherError, connecting } =usePusher(pusherConfig);
+export default function  VideoChatComponent ({ userId,localMediaStream,mediaError,targetId, getLocalMedia,currentUser,pusherError,connecting }) {
+
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
@@ -44,10 +38,11 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 		}
 	},[localAnswer]);
 	useEffect(() => {
-		if (localClose  || remoteClose){
+		if (localClose){
 			setClose(true);
+			resetState();
 		}
-	},[localClose,remoteClose]);
+	},[localClose]);
 	useEffect(() => {
 		if (localOffer){
 			setOffer(localOffer);
@@ -59,12 +54,16 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 			setCandidate(localCandidate);
 		}
 	},[localCandidate]);
-
-	if (connecting){
-		return <ConnectingToPusher />;
-	}
+	function resetState(){
+	  setTimeout(() => {
+			setAnswer(null);
+			setCandidate(null);
+			setOffer(null);
+			setClose(false);
+	  },0);
 	
-	return ( <div>
+	}
+	return [ <div>
 		<div style={{  height: '50vh', width: 600 }}>
 			<VideoChatView
 				remoteStreamSize={{ height: 300, width: 600 }}
@@ -85,18 +84,19 @@ export default function  VideoChatComponent ({ userId,localMediaStream,mediaErro
 				isCaller={isCaller}
 				connected={connected}
 			/>
-			<RTCStateComponent
-				connectionState={state.connectionState}
-				signalingState={state.signalingState}
-				iceConnectionState={state.iceConnectionState}
-				iceGatheringState={state.iceGatheringState}
-			/>
-			<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>
-			<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
-
-		</div>
+		</div>,
+		<RTCStateComponent
+			connectionState={state.connectionState}
+			signalingState={state.signalingState}
+			iceConnectionState={state.iceConnectionState}
+			iceGatheringState={state.iceGatheringState}
+		/>,
+		<div style={{ color: 'red',fontSize: 20 }}>{pusherError && pusherError.message}</div>,
+		<div style={{ color: 'red',fontSize: 20 }}>{webrtcError && webrtcError.message}</div>
 
 	</div>
-	);
+
+	
+	];
     
 }

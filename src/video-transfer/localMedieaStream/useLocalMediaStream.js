@@ -21,6 +21,10 @@ export default function useLocalMediaStream (mediaStreamConstraints) {
 		});
 
 	}
-	return { error,localMediaStream,getLocalMedia };
+	function removeLocalMedia(){
+		setLocalMediaStream(null);
+	}
+	
+	return { error,localMediaStream,getLocalMedia, removeLocalMedia };
 
 }

@@ -54,7 +54,7 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 	},[signalingState]);
 
 	return (
-		<div>
+		<div style={{ height: 150 }}>
 			<h3>RTCPeerConnection state</h3>
 			<StateTable rtcPeerConStates={rtcPeerConStates} />
 		</div>

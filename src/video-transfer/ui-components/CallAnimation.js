@@ -3,11 +3,11 @@ import { useEffect, useState } from 'preact/hooks';
 
 const ProgressCircle = ({ selected }) => (
 	<div style={{
-		height: 10,
-		width: 10,
+		height: 6,
+		width: 6,
 		padding: 3,
 		borderRadius: 50,
-		margin: 6,
+		margin: 4,
 		textAlign: 'center',
 		backgroundColor: selected ? '#2e7d32' : '#9fa8da'
 	}}
@@ -33,11 +33,24 @@ export default function ProgressLoader ({ calling, recievingCall,target }) {
 					setSelected(4);
 				}
 				else if (selected === 4) {
+					setSelected(5);
+				}
+				else if (selected === 5) {
+					setSelected(6);
+				}
+				else if (selected === 6) {
 					setSelected(0);
 				}
 			}
 			if (recievingCall){
+				
 				if (selected === 0) {
+					setSelected(6);
+				}
+				else if (selected === 6) {
+					setSelected(5);
+				}
+				else if (selected === 5) {
 					setSelected(4);
 				}
 				else if (selected === 4) {
@@ -54,7 +67,7 @@ export default function ProgressLoader ({ calling, recievingCall,target }) {
 				}
 			}
 		
-		}, 400);
+		}, 100);
 		return () => {
 			clearInterval(interval);
 		};
@@ -64,6 +77,9 @@ export default function ProgressLoader ({ calling, recievingCall,target }) {
 		<div  style={{ display: 'flex',flexDirection: 'column',alignItems: 'center', alignContent: 'center' }}>
 			<div>{calling && <div>Calling to ...{target}</div>}</div>
 			<div>
+				<ProgressCircle selected={selected === 6} />
+				<ProgressCircle selected={selected === 5} />
+
 				<ProgressCircle selected={selected === 4} />
 				<ProgressCircle selected={selected === 3} />
 				<ProgressCircle selected={selected === 2} />

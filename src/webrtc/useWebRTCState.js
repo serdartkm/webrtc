@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-export default function useWebRTCState({ config, localMediaStream,isCaller }) {
+export default function useWebRTCState({ config, localMediaStream }) {
 
 	const [rtcPeer, setRtcPeer] = useState(null);
 	const [connectionState, setConnectionState] = useState(null);
@@ -15,7 +15,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 	const [localOffer,setLocalOffer] =useState(null);
 	const [localAnswer,setLocalAnswer] =useState(null);
 
-
 	useEffect(() => {
 		if (localMediaStream && rtcPeer && rtcPeer.getSenders().length === 0) {
 			localMediaStream
@@ -24,24 +23,8 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		}
 	}, [localMediaStream]);
 
-
-	function closeConnection(){
-		if (rtcPeer){
-			rtcPeer.ontrack =null;
-			rtcPeer.onicecandidate =null;
-			rtcPeer.onconnectionstatechange =null;
-			rtcPeer.onicegatheringstatechange =null;
-			rtcPeer.onsignalingstatechange =null;
-			rtcPeer.onnegotiationneeded =null;
-			rtcPeer.close();
-			setRtcPeer(null);
-
-		}
-	
-	
-	}
 	function initRTCPeerConnection(isCaller,remoteOffer){
-	
+
 		const rtcPeer = new RTCPeerConnection(config);
 		rtcPeer.onicecandidate = e => {
 			if (e.candidate !== null) {
@@ -51,23 +34,34 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		};
 		rtcPeer.onconnectionstatechange = () => {
 			setConnectionState(rtcPeer.connectionState);
-			switch (rtcPeer.connectionState){
-				case 'disconnected':
-					closeConnection();
-			}
 		};
-
 		rtcPeer.oniceconnectionstatechange = () => {
 			setIceConnectionState(rtcPeer.iceConnectionState);
 		};
-
 		rtcPeer.onicegatheringstatechange = () => {
 			setIceGatheringState(rtcPeer.iceConnectionState);
 		};
-
 		rtcPeer.onsignalingstatechange = () => {
 			setSignalingState(rtcPeer.signalingState);
-			
+			switch (rtcPeer.connectionState){
+				case 'closed':
+				    rtcPeer.ontrack =null;
+					rtcPeer.onicecandidate =null;
+					rtcPeer.onconnectionstatechange =null;
+					rtcPeer.onicegatheringstatechange =null;
+					rtcPeer.onsignalingstatechange =null;
+					rtcPeer.onnegotiationneeded =null;
+					setRtcPeer(null);
+					setRemoteMediaStream(null);
+					setConnectionState(null);
+					setIceConnectionState(null);
+					setIceGatheringState(null);
+					setSignalingState(null);
+					setLocalAnswer(null);
+					setLocalOffer(null);
+					setlocalCandidate(null);
+					setWebRtcStateError(null);
+			}
 		};
 
 		rtcPeer.ontrack = e => {
@@ -83,20 +77,19 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 				}
 				catch (error) {
 					setWebRtcStateError(error);
+					debugger
 				}
 			}
-
 			else if (!isCaller){
 				try {
 					 await rtcPeer.setRemoteDescription(new RTCSessionDescription(remoteOffer));
 					 const answer =await rtcPeer.createAnswer();
 					 await	rtcPeer.setLocalDescription(answer);
 					 await setLocalAnswer(answer);
-					
 				}
 				catch (error) {
+					debugger
 					setWebRtcStateError(error);
-					
 				}
 			}
 		};
@@ -104,7 +97,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		rtcPeer.onerror = e => {
 			setWebRtcStateError(e);
 		};
-
 		setRtcPeer(rtcPeer);
 	}
 	return {
@@ -121,9 +113,6 @@ export default function useWebRTCState({ config, localMediaStream,isCaller }) {
 		localOffer,
 		localAnswer,
 		localCandidate,
-		initRTCPeerConnection,
-		closeConnection
-		
-		
+		initRTCPeerConnection
 	};
 }

@@ -49,3 +49,12 @@ export default function usePusher (config){
 
 	return { currentUser,pusherError,connecting };
 }
+
+
+export  function getPusherConfig({ userId }){
+	return {
+		
+		instanceLocator: 'v1:us1:655c56ba-ae22-49a7-9cdb-ccd682a39c84',
+		userId,
+		url: 'https://us1.pusherplatform.io/services/chatkit_token_provider/v1/655c56ba-ae22-49a7-9cdb-ccd682a39c84/token' };
+}

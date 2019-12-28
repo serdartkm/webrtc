@@ -32,7 +32,15 @@ export default function useUIState ({ localOffer,localAnswer,remoteOffer,remoteA
 			setConnected(true);
 			setCloseLabel('End');
 		}
+		
 	},[state,localOffer]);
+	useEffect(() => {
+		if (!localAnswer && !localOffer){
+			setConnected(false);
+			setCalling(false);
+			setRecievingCall(false);
+		}
+	},[localOffer,localAnswer]);
 	useEffect(() => {
 		if (localAnswer && state && state.connectionState==='connected'){
 			setCalling(false);
