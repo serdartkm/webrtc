@@ -10,25 +10,27 @@ const style = {
     width: 100
   }
 };
-export default function VideoChatView({
-  // state
-  remoteMediaStream,
-  localMediaStream,
-  calling,
-  recievingCall,
-  connected,
-  closeLabel,
-  target,
-  name,
-  remoteStreamSize,
-  localStreamSize,
-  //functions
-  sendOffer,
-  sendAnswer,
-  sendClose,
-sendDecline
- 
-}) {
+export default function VideoChatView({ media, UIState, target, name,mediaSize , handleSendMessage }) {
+  
+  const {  calling, recievingCall, connected, closeLabel } =UIState;
+  const { remoteMediaStream, localMediaStream } =media;
+ const { remoteStreamSize, localStreamSize } = mediaSize;
+
+  function sendOffer (){
+    handleSendMessage('offer');
+  }
+
+  function sendAnswer (){
+    handleSendMessage('answer');
+  }
+  function sendClose (){
+    handleSendMessage('close');
+  }
+  function sendDecline (){
+    handleSendMessage('decline');
+  }
+
+
   return (
     <div className="video-chat-view">
 

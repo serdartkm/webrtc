@@ -12,9 +12,7 @@ export default function useUIState({
 	const [calling, setCalling] = useState(false);
 	const [recievingCall, setRecievingCall] = useState(false);
 	const [connected, setConnected] = useState(false);
-
 	const [closeLabel, setCloseLabel] = useState('');
-
 	function resetState() {
 		setCalling(false);
 		setRecievingCall(false);

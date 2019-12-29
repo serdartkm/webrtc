@@ -1,7 +1,7 @@
 /* eslint-disable brace-style */
 /* eslint-disable indent */
 import { useEffect, useState } from 'preact/hooks';
-import useWebRTCState from './useWebRTCState';
+import useRTCPeerConnection from './webrtc-peer-connection';
 
 export default function useWebRTC({
   //state
@@ -9,7 +9,7 @@ export default function useWebRTC({
   remoteAnswer,
   remoteCandidate,
   remoteClose,
-  config,
+  iceServers,
   localMediaStream,
   getLocalMedia
 }) {
@@ -25,7 +25,7 @@ export default function useWebRTC({
     rtcPeerConnection,
     //function
     initRTCPeerConnection
-  } = useWebRTCState({ config, localMediaStream, remoteOffer });
+  } = useRTCPeerConnection({ iceServers, localMediaStream, remoteOffer });
   const [webrtcError, setWebrtcError] = useState(null);
   const [localClose, setLocalClose] = useState(false);
   const [localDecline, setLocalDecline] = useState(false);
@@ -35,6 +35,7 @@ export default function useWebRTC({
       resetState();
     }
   }, [localCandidate, localOffer, localAnswer]);
+
   useEffect(() => {
     if (webrtcStateError) {
       setWebrtcError(webrtcStateError);
@@ -115,7 +116,6 @@ export default function useWebRTC({
     initRTCPeerConnection(true);
   }
 
-
   function sendAnswer() {
     initRTCPeerConnection(false, remoteOffer);
   }
@@ -137,6 +137,25 @@ export default function useWebRTC({
       resetState();
     }, 0);
   }
+  function handleSendMessage(messageType) {
+    switch (messageType) {
+      case 'offer':
+        sendOffer();
+        break;
+      case 'answer':
+        sendAnswer();
+        break;
+      case 'decline':
+        sendDecline();
+        break;
+      case 'close':
+        sendClose();
+        break;
+      default:
+        '';
+    }
+  }
+
   return {
     //state
     remoteMediaStream,
@@ -148,9 +167,6 @@ export default function useWebRTC({
     state,
     //functions
     localClose,
-    sendOffer,
-    sendAnswer,
-    sendClose,
-    sendDecline
+    handleSendMessage
   };
 }

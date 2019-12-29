@@ -37,6 +37,7 @@ export default function useConnectionState (rtcPeerConnection){
 		rtcPeerConnection.onicegatheringstatechange =null;
 		rtcPeerConnection.onsignalingstatechange =null;
 		rtcPeerConnection.onnegotiationneeded =null;
+		rtcPeerConnection.onerror =null;
 		setClean(true);
 	}
 	return { connectionState,signalingState,clean };
