@@ -1,9 +1,9 @@
 /* eslint-disable brace-style */
 /* eslint-disable indent */
 import { useEffect, useState } from 'preact/hooks';
-import useRTCPeerConnection from './webrtc-peer-connection';
+import useRTCPeerConnection from './useRTCPeerConnection/useRTCPeerConnection';
 
-export default function useWebRTC({
+export default function useLocalState({
   //state
   remoteOffer,
   remoteAnswer,
@@ -111,9 +111,15 @@ export default function useWebRTC({
     }
   }, [rtcPeerConnection]);
 
-  useEffect(() => {}, [remoteOffer]);
+  useEffect(() => {
+    if(remoteOffer){
+      debugger
+    }
+  
+  }, [remoteOffer]);
   function sendOffer() {
     initRTCPeerConnection(true);
+  
   }
 
   function sendAnswer() {
@@ -141,6 +147,8 @@ export default function useWebRTC({
     switch (messageType) {
       case 'offer':
         sendOffer();
+debugger
+        console.log('rtcPeerConnection',rtcPeerConnection);
         break;
       case 'answer':
         sendAnswer();

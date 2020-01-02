@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'preact/hooks';
-import useWebRTC from './use-webrtc';
+import useLocalState from './useLocalState';
 import useUIState from './useUIState';
-import useSignalingState from './useSignalingState';
+import useRemoteState from './useRemoteState';
 
-export default function useWebRTCApp ({ sendMessage, message, localMediaStream,getLocalMedia, target, name,iceServers }){
+export default function useWebRTC ({ sendMessage, message, localMediaStream,getLocalMedia, target, name,iceServers }){
 	const [offer,setOffer] =useState(null);
 	const [answer,setAnswer]=useState(null);
 	const [candidate,setCandidate] =useState(null);
 	const [close,setClose]=useState(false);
 	const [decline,setDecline]=useState(false);
-	const { remoteAnswer,remoteOffer,remoteCandidate, remoteClose }  =useSignalingState({ name, target,localAnswer: answer,localOffer: offer,localCandidate: candidate,localClose: close,localDecline: decline ,sendMessage,message });
-	const { localOffer,localAnswer,localCandidate,localClose,localDecline, state, handleSendMessage, remoteMediaStream,webrtcError } =useWebRTC({ iceServers,remoteAnswer,remoteCandidate,remoteOffer,remoteClose,localMediaStream,getLocalMedia });
+	const { remoteAnswer,remoteOffer,remoteCandidate, remoteClose }  =useRemoteState({ name, target,localAnswer: answer,localOffer: offer,localCandidate: candidate,localClose: close,localDecline: decline ,sendMessage,message });
+	const { localOffer,localAnswer,localCandidate,localClose,localDecline, state, handleSendMessage, remoteMediaStream,webrtcError } =useLocalState({ iceServers,remoteAnswer,remoteCandidate,remoteOffer,remoteClose,localMediaStream,getLocalMedia });
 	const { calling, recievingCall, connected, closeLabel } = useUIState({ localClose,localAnswer,localOffer,localDecline,state,remoteAnswer,remoteOffer });
     
 	useEffect(() => {

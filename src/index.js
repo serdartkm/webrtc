@@ -1,16 +1,22 @@
 /* eslint-disable react/prefer-stateless-function */
 import './style';
-import { Component } from 'preact';
+import ConnectingToPusher from './video-transfer/ui-components/ConnectingToPusher';
 import Client from './video-transfer/demo-components/Client';
-export default class App extends Component {
-	render() {
-		return (<div style={{ display: 'flex' }}>
-			<Client userId="mmario" />;
-			<Client userId="ddragos" />;
-		</div>);
-			
+import usePusher,{ getPusherConfig } from './signaling-service/pusher/usePusher';
+
+export default function App () {
+
+	const { currentUser: reno } = usePusher(getPusherConfig({ userId: 'reno' }));
+	const { currentUser: breno } = usePusher(getPusherConfig({ userId: 'breno' }));
 	
-	}
+	if (reno && breno)
+
+		return (<div style={{ display: 'flex' }}>
+			<Client currentUser={reno} name="reno" target="breno" />;
+			<Client currentUser={breno} name="breno" target="reno" />;
+		</div>);
+	
+	return <ConnectingToPusher />;
 }
 
 //master

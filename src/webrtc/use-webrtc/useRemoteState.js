@@ -1,6 +1,6 @@
 import { useState ,useEffect } from 'preact/hooks';
 
-export default function useSignalingState ({ localOffer,localAnswer,localCandidate,localDecline,localClose,name,target, message, sendMessage }){
+export default function useRemoteState ({ localOffer,localAnswer,localCandidate,localDecline,localClose,name,target, message, sendMessage }){
 	const [remoteOffer, setRemoteOffer]=useState(null);
 	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteCandidate,setRemoteCandidate]=useState(null);
@@ -8,12 +8,17 @@ export default function useSignalingState ({ localOffer,localAnswer,localCandida
 
 	useEffect(() => {
 		if (message){
-			console.log("msg",message);
-			
+		
+			debugger
 			const { target, sdp,type } = JSON.parse(message);
 			if (target === name) {
+
 				if (type === 'offer') {
 					setRemoteOffer(sdp);
+					debugger
+					console.log("name", name);
+					console.log("target",target);
+				
 				}
 				else if (type === 'answer') {
 					setRemoteAnswer(sdp);
@@ -24,10 +29,12 @@ export default function useSignalingState ({ localOffer,localAnswer,localCandida
 				else if (type ==='close'){
 					setRemoteClose(true);
 					resetState();
+				
 				}
 				else if (type ==='decline'){
 					setRemoteClose(true);
 					resetState();
+				
 				}
 			}
 		}
@@ -42,6 +49,7 @@ export default function useSignalingState ({ localOffer,localAnswer,localCandida
 		if (localOffer) {
 			const offer = { sdp: localOffer, name, target, type: 'offer' };
 			sendMessage(JSON.stringify(offer));
+			debugger;
 		}
 	
 	}, [localOffer]);
@@ -50,6 +58,7 @@ export default function useSignalingState ({ localOffer,localAnswer,localCandida
 		if (localAnswer) {
 			const answer = { sdp: localAnswer, name, target,type: 'answer'  };
 			sendMessage(JSON.stringify(answer));
+			debugger;
 		}
 	
 	}, [localAnswer]);

@@ -11,10 +11,9 @@ const style = {
   }
 };
 export default function VideoChatView({ media, UIState, target, name,mediaSize , handleSendMessage }) {
-  
   const {  calling, recievingCall, connected, closeLabel } =UIState;
   const { remoteMediaStream, localMediaStream } =media;
- const { remoteStreamSize, localStreamSize } = mediaSize;
+  const { remoteStreamSize, localStreamSize } = mediaSize;
 
   function sendOffer (){
     handleSendMessage('offer');

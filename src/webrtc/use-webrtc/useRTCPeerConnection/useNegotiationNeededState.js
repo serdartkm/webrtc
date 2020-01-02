@@ -31,7 +31,6 @@ export default function useNegotiationNeededState ({ rtcPeerConnection,remoteOff
 							setLocalOffer(offer);
 						}
 					});
-
 				}
 			};
 		}

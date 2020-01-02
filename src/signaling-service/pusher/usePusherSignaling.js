@@ -8,9 +8,10 @@ export default function PusherSignaling({ currentUser, roomId }) {
 			currentUser.subscribeToRoomMultipart({
 				roomId,
 				hooks: {
-					onMessage: message => {
+					onMessage: m => {
+						debugger
+						setMessage(m.parts[0].payload.content);
 					
-						setMessage(message.parts[0].payload.content);
 					}
 				},
 				messageLimit: 0
@@ -20,19 +21,27 @@ export default function PusherSignaling({ currentUser, roomId }) {
 
 	function sendMessage(msg) {
 		if (msg !== null && msg !== undefined) {
+	
+
 			currentUser
 				.sendSimpleMessage({
 					text: msg,
 					roomId: currentUser.rooms[0].id
 				})
-				.then(response => {})
+				.then(response => {
+				
+				})
 				.catch(e => {
 					setError(e);
+				
 				});
 		}
 	}
-
+	useEffect(()=>{
+		if(message){
+			debugger
+		}
+	},[message])
 	return { message, sendMessage,error };
 	
-
 }
