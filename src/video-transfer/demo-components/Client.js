@@ -1,5 +1,4 @@
 import { h }  from 'preact';
-
 import useWebRTCPusherApp from '../../webrtc/webrtc-pusher-app';
 import VideoChatView from '../ui-components/VideoChatView';
 
@@ -13,11 +12,11 @@ const mediaConstrains ={ video: true,audio: false };
 export default function Client  ({ name,target,currentUser }){
 
 
-	const { handleSendMessage,UIState,media,pusherError,webRTCError } =useWebRTCPusherApp({ mediaConstrains,currentUser, roomId: '0cc69727-c8bb-4b50-b79d-275d6d14e150', name,target });
+	const { handleSendMessage,state,remoteMediaStream,pusherError,webRTCError } =useWebRTCPusherApp({ mediaConstrains,currentUser, roomId: '0cc69727-c8bb-4b50-b79d-275d6d14e150', name,target });
 
 	return (
 		<div style={{ height: '70vh', width: 500 }}>
-			<VideoChatView mediaSize={mediaSize} handleSendMessage={handleSendMessage} UIState={UIState} media={media} pusherError={pusherError} webRTCError={webRTCError} />
+			<VideoChatView mediaSize={mediaSize} handleSendMessage={handleSendMessage} state={state} remoteMediaStream={remoteMediaStream} pusherError={pusherError} webRTCError={webRTCError} />
 		</div>
 	);
 

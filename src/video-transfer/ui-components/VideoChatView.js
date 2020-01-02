@@ -10,60 +10,79 @@ const style = {
     width: 100
   }
 };
-export default function VideoChatView({ media, UIState, target, name,mediaSize , handleSendMessage }) {
-  const {  calling, recievingCall, connected, closeLabel } =UIState;
-  const { remoteMediaStream, localMediaStream } =media;
+export default function VideoChatView({ remoteMediaStream, state, target, name,mediaSize , handleSendMessage }) {
+  const { connectionState, signalingState, remoteOffer } =state;
+
   const { remoteStreamSize, localStreamSize } = mediaSize;
+
 
   function sendOffer (){
     handleSendMessage('offer');
+ 
   }
 
   function sendAnswer (){
     handleSendMessage('answer');
   }
-  function sendClose (){
-    handleSendMessage('close');
+  function sendEnd (){
+    handleSendMessage('end');
   }
   function sendDecline (){
     handleSendMessage('decline');
   }
 
-
+  function sendIgnore (){
+    handleSendMessage('ignore');
+  }
+  function sendCancel (){
+    handleSendMessage('cancel');
+  }
   return (
     <div className="video-chat-view">
 
       <div className="media-container">
         <div className="local-media">
-        {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
+        {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={remoteMediaStream} />}
         </div>
         <div className="remote-media">
           
-          {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
+          {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
         </div>
       </div>
       <div className="call-animation">
-      {!connected && (
+      {connectionState !=='connected' && (
         <CallAnimation
-	calling={calling}
-	recievingCall={recievingCall}
+	calling={signalingState ==='have-local-offer'}
+	recievingCall={remoteOffer}
 	target={target}
         />
       )}
       </div>
       <div className="button-container">
-          {!connected && !calling && !recievingCall  && (
+          {connectionState !=='connected'  && signalingState !=='have-local-offer' && !remoteOffer && (
             <button style={style.btn} onClick={sendOffer}>
               Call
             </button>
           )}
-          {!connected && recievingCall && (
+          {connectionState !=='connected'  && remoteOffer && (
             <button style={style.btn}   onClick={sendAnswer}>
               Answer
             </button>
+            
           )}
-          {(connected || calling || recievingCall) && (
-            <button style={style.btn}  onClick={closeLabel ==='Decline' ? sendDecline: sendClose}>{closeLabel}</button>
+          {(connectionState !=='connected'  && remoteOffer) && (
+            <button style={style.btn}  onClick={sendDecline}>Decline</button>
+          )}
+             {(connectionState ==='connected') && (
+            <button style={style.btn}  onClick={sendEnd}>End</button>
+          )}
+             {(connectionState !=='connected' && remoteOffer) && (
+            <button style={style.btn}  onClick={sendIgnore}>Ignore</button>
+          )}
+              {connectionState !=='connected'  && signalingState ==='have-local-offer' && (
+            <button style={style.btn} onClick={sendCancel}>
+              Cancel
+            </button>
           )}
         </div>
     </div>

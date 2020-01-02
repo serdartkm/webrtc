@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export default function PusherSignaling({ currentUser, roomId }) {
+export default function PusherSignaling({ currentUser, roomId, target,name }) {
 	const [message, setMessage] = useState(null);
 	const [error,setError]=useState(null);
 	useEffect(() => {
@@ -9,8 +9,11 @@ export default function PusherSignaling({ currentUser, roomId }) {
 				roomId,
 				hooks: {
 					onMessage: m => {
-						debugger
-						setMessage(m.parts[0].payload.content);
+						const msg =JSON.parse(m.parts[0].payload.content);
+						if (msg.target ===name){
+							setMessage(msg);
+						}
+						
 					
 					}
 				},
@@ -21,11 +24,11 @@ export default function PusherSignaling({ currentUser, roomId }) {
 
 	function sendMessage(msg) {
 		if (msg !== null && msg !== undefined) {
-	
+			
 
 			currentUser
 				.sendSimpleMessage({
-					text: msg,
+					text: JSON.stringify( msg),
 					roomId: currentUser.rooms[0].id
 				})
 				.then(response => {
@@ -37,11 +40,7 @@ export default function PusherSignaling({ currentUser, roomId }) {
 				});
 		}
 	}
-	useEffect(()=>{
-		if(message){
-			debugger
-		}
-	},[message])
+
 	return { message, sendMessage,error };
 	
 }
