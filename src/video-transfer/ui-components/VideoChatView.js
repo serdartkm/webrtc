@@ -10,7 +10,7 @@ const style = {
     width: 100
   }
 };
-export default function VideoChatView({ remoteMediaStream, state, target, name,mediaSize , handleSendMessage }) {
+export default function VideoChatView({ remoteMediaStream,localMediaStream, state, target, name,mediaSize , handleSendMessage }) {
   const { connectionState, signalingState, remoteOffer } =state;
 
   const { remoteStreamSize, localStreamSize } = mediaSize;
@@ -42,7 +42,7 @@ export default function VideoChatView({ remoteMediaStream, state, target, name,m
 
       <div className="media-container">
         <div className="local-media">
-        {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={remoteMediaStream} />}
+        {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
         </div>
         <div className="remote-media">
           

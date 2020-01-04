@@ -5,9 +5,9 @@ import usePusherSignaling from '../../signaling-service/pusher/usePusherSignalin
 import iceServers from '../servers';
 import useWebRTC from '../useWebRTC';
 
-export default function  useWebRTCPusherApp ({ mediaConstrains,currentUser, roomId, name,target,localMediaStream   }) {
+export default function  useWebRTCPusherApp ({ mediaConstraints,currentUser, roomId, name,target   }) {
 	const { message, sendMessage,error: pusherError }  = usePusherSignaling({ currentUser,roomId, target,name });
-	const { handleSendMessage ,state, webRTCError,remoteMediaStream } =useWebRTC({ sendMessage,message,localMediaStream, iceServers, name,target });
+	const { handleSendMessage ,state, webRTCError,remoteMediaStream } =useWebRTC({ sendMessage,message, mediaConstraints,iceServers, name,target });
 	if (webRTCError){
 		console.log('webRTCError',webRTCError);
 	}
