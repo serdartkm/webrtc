@@ -11,14 +11,13 @@ const style = {
   }
 };
 export default function VideoChatView({ remoteMediaStream,localMediaStream, state, target, name,mediaSize , handleSendMessage }) {
-  const { connectionState, signalingState, remoteOffer } =state;
+  const { connectionState, signalingState } =state;
 
   const { remoteStreamSize, localStreamSize } = mediaSize;
 
 
   function sendOffer (){
     handleSendMessage('offer');
- 
   }
 
   function sendAnswer (){
@@ -42,41 +41,40 @@ export default function VideoChatView({ remoteMediaStream,localMediaStream, stat
 
       <div className="media-container">
         <div className="local-media">
-        {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
+        {connectionState ==='connected' && signalingState !=='closed' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
         </div>
         <div className="remote-media">
-          
-          {connectionState ==='connected' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
+          {connectionState ==='connected' && signalingState !=='closed' && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
         </div>
       </div>
       <div className="call-animation">
       {connectionState !=='connected' && (
         <CallAnimation
 	calling={signalingState ==='have-local-offer'}
-	recievingCall={remoteOffer}
+	recievingCall={signalingState ==='have-remote-offer'}
 	target={target}
         />
       )}
       </div>
       <div className="button-container">
-          {connectionState !=='connected'  && signalingState !=='have-local-offer' && !remoteOffer && (
+          {(connectionState !=='connected' || signalingState ==='closed')  && signalingState !=='have-local-offer' && signalingState !=='have-remote-offer' && (
             <button style={style.btn} onClick={sendOffer}>
               Call
             </button>
           )}
-          {connectionState !=='connected'  && remoteOffer && (
+          {connectionState !=='connected'  && signalingState ==='have-remote-offer' && (
             <button style={style.btn}   onClick={sendAnswer}>
               Answer
             </button>
             
           )}
-          {(connectionState !=='connected'  && remoteOffer) && (
+          {(connectionState !=='connected'  && signalingState ==='have-remote-offer') && (
             <button style={style.btn}  onClick={sendDecline}>Decline</button>
           )}
-             {(connectionState ==='connected') && (
+             {(connectionState ==='connected' && signalingState !=='closed') && (
             <button style={style.btn}  onClick={sendEnd}>End</button>
           )}
-             {(connectionState !=='connected' && remoteOffer) && (
+             {(connectionState !=='connected' && signalingState ==='have-remote-offer') && (
             <button style={style.btn}  onClick={sendIgnore}>Ignore</button>
           )}
               {connectionState !=='connected'  && signalingState ==='have-local-offer' && (

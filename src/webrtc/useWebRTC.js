@@ -11,8 +11,6 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 	const [iceGatheringState, setIceGatheringState] = useState(null);
 	const [remoteMediaStream, setRemoteMediaStream] = useState(null);
 	const [localMediaStream,setLocalMediaStream] =useState(null);
-	const [remoteOffer,setRemoteOffer]=useState(null);
-	const [remoteAnswer,setRemoteAnswer]=useState(null);
 	const [remoteIceCandidates,setRemoteIceCandidates]=useState([]);
 	useEffect(() => {
 		setPc(new RTCPeerConnection(iceServers));
@@ -22,6 +20,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 		if (pc){
 			pc.onicecandidate = function(e) {
 				if (e.candidate){
+				
 					sendMessage({ sdp: e.candidate,type: 'ice' });
 				}
 			  };
@@ -29,7 +28,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				setConnectionState(pc.connectionState);
 				switch (pc.connectionState){
 					case 'failed':
-						resetState();
+						
 				}
 			
 			};
@@ -37,7 +36,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				setSignalingState(pc.signalingState);
 				switch (pc.signalingState){
 					case 'closed':
-						resetState();
+					
 				}
 			};
 			
@@ -53,24 +52,53 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 
 		
 		}
+
+		return () => {
+			resetState();
+		};
 		
 	},[pc]);
 	
 	
 	useEffect(() => {
-
-		 	function messageRecived(){
+		function messageRecived(){
 			switch (message.type){
 				case 'offer':
-					debugger
-					 setRemoteOffer(message.sdp);
-					break;
-				case 'answer':
-					pc.setRemoteDescription(message.sdp)
+					pc.setRemoteDescription(message.sdp.sdp)
 						.then(() => {
-							setRemoteAnswer(pc.setRemoteDescription);
+							if (remoteIceCandidates.length >0){
+								for ( let ice in remoteIceCandidates){
+									if (ice){
+									
+										pc.addIceCandidate(remoteIceCandidates[ice]);
+									}
+								}
+							}
 						})
 						.catch((err) => {
+							setError(err);
+							// eslint-disable-next-line no-debugger
+							debugger;
+						});
+					break;
+				case 'answer':
+				
+					pc.setRemoteDescription(message.sdp.sdp)
+						.then(() => {
+						
+							if (remoteIceCandidates.length >0){
+							
+								for ( let ice in remoteIceCandidates){
+									if (ice){
+								
+										pc.addIceCandidate(remoteIceCandidates[ice]);
+									}
+								}
+							}
+
+						})
+						.catch((err) => {
+							// eslint-disable-next-line no-debugger
 							debugger;
 							setError(err);
 						});
@@ -78,6 +106,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				case 'ice':
 				
 					if (pc.remoteDescription){
+					
 						pc.addIceCandidate(message.sdp);
 					}
 				 else {
@@ -105,18 +134,8 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 	},[message]);
 
 	function createAnswer (){
-		pc.setRemoteDescription(remoteOffer)
-			.then(() => {
-			
-				if (remoteIceCandidates.length >0){
-					for ( let ice in remoteIceCandidates){
-						if (ice){
-							pc.addIceCandidate(remoteIceCandidates[ice]);
-						}
-					}
-				}
-			})
-			.then(() => navigator.mediaDevices.getUserMedia({ video: true,audio: false }))
+	
+		navigator.mediaDevices.getUserMedia({ video: true,audio: false })
 			.then((stream) => {
 				stream
 					.getVideoTracks()
@@ -131,10 +150,12 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				sendMessage({ sdp: pc.localDescription,type: 'answer' });
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-debugger
 				debugger;
 			});
 	}
 	function createOffer (){
+
 		navigator.mediaDevices.getUserMedia({ video: true,audio: false })
 			.then((stream) => {
 				stream
@@ -151,6 +172,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				sendMessage({ sdp: pc.localDescription, type: 'offer' });
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-debugger
 				debugger;
 				setError(err);
 
@@ -163,14 +185,13 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 		switch (type){
 			case 'decline':
 				sendMessage({ type: 'decline' });
-				setRemoteOffer(null);
+			
 				break;
 			case  'end':
 				sendMessage({ type: 'end' });
 				pc.close();
 				break;
 			case 'ignore':
-				setRemoteOffer(null);
 				break;
 			case 'cancel':
 				pc.close();
@@ -186,12 +207,12 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 			pc.onicegatheringstatechange = null;
 			pc.ontrack = null;
 			setPc(null);
-			setRemoteOffer(null);
 			setSignalingState(null);
 			setIceConnectionState(null);
 			setIceGatheringState(null);
 			setRemoteMediaStream(null);
 			setConnectionState(null);
+			setLocalMediaStream(null);
 			setError(null);
 		}
 	}
@@ -218,5 +239,5 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 		}
 	}
 
-	return { webRTCError: error, state: { connectionState,signalingState, iceGatheringState,iceConnectionState, remoteOffer },localMediaStream,remoteMediaStream, handleSendMessage };
+	return { webRTCError: error, state: { connectionState,signalingState, iceGatheringState,iceConnectionState },localMediaStream,remoteMediaStream, handleSendMessage };
 }
