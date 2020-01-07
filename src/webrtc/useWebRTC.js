@@ -12,10 +12,9 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 	const [remoteMediaStream, setRemoteMediaStream] = useState(null);
 	const [localMediaStream,setLocalMediaStream] =useState(null);
 	const [remoteIceCandidates,setRemoteIceCandidates]=useState([]);
-	useEffect(() => {
-		setPc(new RTCPeerConnection(iceServers));
-	
-	},[]);
+	const [isCaller,setCaller] =useState(false);
+	const [remoteOffer, setRemoteOffer]= useState(null);
+
 	useEffect(() => {
 		if (pc){
 			pc.onicecandidate = function(e) {
@@ -36,7 +35,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				setSignalingState(pc.signalingState);
 				switch (pc.signalingState){
 					case 'closed':
-					
+						resetState();
 				}
 			};
 			
@@ -49,8 +48,6 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 			pc.ontrack = e => {
 				setRemoteMediaStream(e.streams[0]);
 			};
-
-		
 		}
 
 		return () => {
@@ -58,55 +55,36 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 		};
 		
 	},[pc]);
-	
+	useEffect(() => {
+		if (isCaller && pc){
+			createSDP('offer');
+		}
+	},[isCaller,pc]);
 	
 	useEffect(() => {
 		function messageRecived(){
 			switch (message.type){
-				case 'offer':
-					pc.setRemoteDescription(message.sdp.sdp)
-						.then(() => {
-							if (remoteIceCandidates.length >0){
-								for ( let ice in remoteIceCandidates){
-									if (ice){
-									
-										pc.addIceCandidate(remoteIceCandidates[ice]);
-									}
-								}
-							}
-						})
-						.catch((err) => {
-							setError(err);
-							// eslint-disable-next-line no-debugger
-							debugger;
-						});
-					break;
 				case 'answer':
-				
-					pc.setRemoteDescription(message.sdp.sdp)
-						.then(() => {
-						
-							if (remoteIceCandidates.length >0){
-							
-								for ( let ice in remoteIceCandidates){
-									if (ice){
-								
-										pc.addIceCandidate(remoteIceCandidates[ice]);
+					if (pc.localDescription){
+						pc.setRemoteDescription(message.sdp.sdp)
+							.then(() => {
+								if (remoteIceCandidates.length >0){
+									for ( let ice in remoteIceCandidates){
+										if (ice){
+											pc.addIceCandidate(remoteIceCandidates[ice]);
+										}
 									}
 								}
-							}
-
-						})
-						.catch((err) => {
+							})
+							.catch((err) => {
 							// eslint-disable-next-line no-debugger
-							debugger;
-							setError(err);
-						});
+								debugger;
+								setError(err);
+							});
+					}
 					break;
 				case 'ice':
-				
 					if (pc.remoteDescription){
-					
 						pc.addIceCandidate(message.sdp);
 					}
 				 else {
@@ -123,39 +101,48 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 					pc.close();
 					 break;
 			}
-			
 		}
-		if (message){
-		
+		if (message && pc){
 			messageRecived();
-			
 		}
-		
+	},[message, pc]);
+
+	useEffect(() => {
+		if (message && message.type ==='offer'){
+			setPc(new RTCPeerConnection(iceServers));
+			setRemoteOffer(message.sdp.sdp);
+		}
 	},[message]);
 
+	useEffect(() => {
+		if (remoteOffer && pc){
+			pc.setRemoteDescription(remoteOffer)
+				.then(() => {
+					if (remoteIceCandidates.length >0){
+						for ( let ice in remoteIceCandidates){
+							if (ice){
+								pc.addIceCandidate(remoteIceCandidates[ice]);
+							}
+						}
+					}
+				})
+				.catch((err) => {
+					setError(err);
+					// eslint-disable-next-line no-debugger
+					debugger;
+				});
+		}
+	},[remoteOffer,pc]);
+
 	function createAnswer (){
-	
-		navigator.mediaDevices.getUserMedia({ video: true,audio: false })
-			.then((stream) => {
-				stream
-					.getVideoTracks()
-					.forEach(t => pc.addTrack(t,stream));
-				setLocalMediaStream(stream);
-			})
-			.then(() => pc.createAnswer())
-			.then((answer) => {
-				pc.setLocalDescription(answer);
-			})
-			.then(() => {
-				sendMessage({ sdp: pc.localDescription,type: 'answer' });
-			})
-			.catch((err) => {
-				// eslint-disable-next-line no-debugger
-				debugger;
-			});
+		createSDP('answer');
 	}
 	function createOffer (){
+		setPc(new RTCPeerConnection(iceServers));
+		setCaller(true);
+	}
 
+	function createSDP(type){
 		navigator.mediaDevices.getUserMedia({ video: true,audio: false })
 			.then((stream) => {
 				stream
@@ -163,23 +150,19 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 					.forEach(t => pc.addTrack(t,stream));
 				setLocalMediaStream(stream);
 			})
-			.then(() => pc.createOffer())
-			.then((offer) => {
-				pc.setLocalDescription(offer);
+			.then(() =>  type==='answer' ? pc.createAnswer() : pc.createOffer() )
+			.then((sdp) => {
+				pc.setLocalDescription(sdp);
+				debugger;
 			})
 			.then(() => {
-			
-				sendMessage({ sdp: pc.localDescription, type: 'offer' });
+				sendMessage({ sdp: pc.localDescription,type });
 			})
 			.catch((err) => {
-				// eslint-disable-next-line no-debugger
+			// eslint-disable-next-line no-debugger
 				debugger;
-				setError(err);
-
-		  /* handle the error */
 			});
 	}
-
 
 	function closeConnection (type){
 		switch (type){
@@ -210,10 +193,13 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 			setSignalingState(null);
 			setIceConnectionState(null);
 			setIceGatheringState(null);
-			setRemoteMediaStream(null);
 			setConnectionState(null);
 			setLocalMediaStream(null);
+			setRemoteMediaStream(null);
 			setError(null);
+			setRemoteOffer(null);
+			setCaller(false);
+			setRemoteIceCandidates([]);
 		}
 	}
 	function handleSendMessage (type){

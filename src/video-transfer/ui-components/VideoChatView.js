@@ -58,7 +58,7 @@ export default function VideoChatView({ remoteMediaStream,localMediaStream, stat
       </div>
       <div className="button-container">
           {(connectionState !=='connected' || signalingState ==='closed')  && signalingState !=='have-local-offer' && signalingState !=='have-remote-offer' && (
-            <button style={style.btn} onClick={sendOffer}>
+            <button disabled={connectionState==='connecting'} style={style.btn} onClick={sendOffer}>
               Call
             </button>
           )}

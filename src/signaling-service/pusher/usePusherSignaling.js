@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export default function PusherSignaling({ currentUser, roomId, target,name }) {
+export default function PusherSignaling({ currentUser, roomId, target,name,closed }) {
 	const [message, setMessage] = useState(null);
 	const [error,setError]=useState(null);
 	const [partialMessage,setPartialMessage]= useState(null);
@@ -16,9 +16,17 @@ export default function PusherSignaling({ currentUser, roomId, target,name }) {
 						if (msg.target ===name){
 							if (msg.type==='offer' || msg.type==='answer'){
 								setPartialMessage(msg);
+								debugger;
 							}
 							else {
 								setMessage(msg.msg);
+								if (msg.type ==='end'){
+									setMessages([]);
+									setPartialMessage(null);
+									setError(null);
+								
+								}
+							
 							}
 						}
 					}
@@ -35,23 +43,27 @@ export default function PusherSignaling({ currentUser, roomId, target,name }) {
 				setMessages([partialMessage]);
 			
 			}
-			else {
+			else if (messages.length>0) {
 				const msg =messages.find( element => element.id===partialMessage.id);
 				let fullContent =null;
 			
 				if (msg === undefined){
-					setMessages(prev => [...prev,partialMessage]);
+					setMessages([partialMessage]);
+					debugger;
 				}
 				else
-				if (msg.order==='first'){
+				if (msg && msg.order==='first'){
 					fullContent =  msg.content+partialMessage.content;
+					setMessage({ sdp: JSON.parse(fullContent), type: msg.type });
+					setMessages(prev => [...prev.filter(e => e.id ===partialMessage.id)]) ;
 				}
-				else {
+				else if (msg && msg.order==='second') {
 					fullContent =  partialMessage.content+msg.content;
+					setMessage({ sdp: JSON.parse(fullContent), type: msg.type });
+					setMessages(prev => [...prev.filter(e => e.id ===partialMessage.id)]) ;
 				}
 				//	console.log('fullContent', fullContent);
-				setMessages(prev => [...prev.filter(e => e.id ===partialMessage.id)]) ;
-				setMessage({ sdp: JSON.parse(fullContent), type: msg.type });
+				
 			}
 		}
 	},[partialMessage]);
@@ -61,6 +73,7 @@ export default function PusherSignaling({ currentUser, roomId, target,name }) {
 		}
 	},[messages]);
 	function sendMessage(msg) {
+
 		if (msg !== null && msg !== undefined && (msg.type ==='offer' || msg.type==='answer')) {
 		
 			
@@ -82,6 +95,7 @@ export default function PusherSignaling({ currentUser, roomId, target,name }) {
 				)
 				.catch(e => {
 					setError(e);
+					debugger;
 				});
 		}
 		else {
@@ -90,6 +104,14 @@ export default function PusherSignaling({ currentUser, roomId, target,name }) {
 				.sendSimpleMessage({
 					text: JSON.stringify({ msg,target,name }),
 					roomId: currentUser.rooms[0].id
+				})
+				.then(() => {
+					if (msg.type==='end'){
+						setMessages([]);
+						setPartialMessage(null);
+						setError(null);
+					
+					}
 				})
 				.catch(e => {
 					setError(e);
