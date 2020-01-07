@@ -9,8 +9,6 @@ export default function usePusher (config){
 	const [connecting,setConnecting]=useState(false);
 	
 	useEffect(() => {
-		
-
 		if (!navigator.onLine){
 			setPusherError(new Error('Your device is offline'));
 		}
@@ -23,10 +21,8 @@ export default function usePusher (config){
 			}));
 		}
 		
-	
 	},[]);
 
-    
 	useEffect(() => {
 		if (chatManager){
 			setConnecting(true);
@@ -49,7 +45,6 @@ export default function usePusher (config){
 
 	return { currentUser,pusherError,connecting };
 }
-
 
 export  function getPusherConfig({ userId }){
 	return {

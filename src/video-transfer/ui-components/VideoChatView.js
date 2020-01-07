@@ -10,38 +10,45 @@ const style = {
     width: 100
   }
 };
-export default function VideoChatView({
-  // state
-  remoteMediaStream,
-  localMediaStream,
-  calling,
-  recievingCall,
-  connected,
-  closeLabel,
-  target,
-  name,
-  remoteStreamSize,
-  localStreamSize,
-  //functions
-  sendOffer,
-  sendAnswer,
-  sendClose,
-sendDecline
- 
-}) {
+export default function VideoChatView({ remoteMediaStream,localMediaStream, uiState, target, name,mediaSize , handleSendMessage }) {
+  const {callEnded,calling,recievingCall, connected, connecting,callBtnVisible,answerBtnVisible,cancellBtnVisible,declineBtnVisible,ignoreBtnVisible, endBtnVisible } =uiState;
+
+  const { remoteStreamSize, localStreamSize } = mediaSize;
+
+
+  function sendOffer (){
+    handleSendMessage('offer');
+  }
+
+  function sendAnswer (){
+    handleSendMessage('answer');
+  }
+  function sendEnd (){
+    handleSendMessage('end');
+  }
+  function sendDecline (){
+    handleSendMessage('decline');
+  }
+
+  function sendIgnore (){
+    handleSendMessage('ignore');
+  }
+  function sendCancel (){
+    handleSendMessage('cancel');
+  }
   return (
     <div className="video-chat-view">
 
       <div className="media-container">
         <div className="local-media">
-        {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
+        {connected && <DisplayMediaStream name={name} style={{ backgroundColor: 'blue' }} width={localStreamSize.width} mediaStream={localMediaStream} />}
         </div>
         <div className="remote-media">
           {connected && <DisplayMediaStream name={target} style={{ backgroundColor: 'blue' }} width={remoteStreamSize.width} height={remoteStreamSize.height} mediaStream={remoteMediaStream} />}
         </div>
       </div>
       <div className="call-animation">
-      {!connected && (
+      { !connected && (
         <CallAnimation
 	calling={calling}
 	recievingCall={recievingCall}
@@ -50,18 +57,29 @@ sendDecline
       )}
       </div>
       <div className="button-container">
-          {!connected && !calling && !recievingCall  && (
-            <button style={style.btn} onClick={sendOffer}>
+          {
+           callBtnVisible &&  <button disabled={connecting} style={style.btn} onClick={sendOffer}>
               Call
             </button>
-          )}
-          {!connected && recievingCall && (
+}
+          {answerBtnVisible && (
             <button style={style.btn}   onClick={sendAnswer}>
               Answer
             </button>
           )}
-          {(connected || calling || recievingCall) && (
-            <button style={style.btn}  onClick={closeLabel ==='Decline' ? sendDecline: sendClose}>{closeLabel}</button>
+          {declineBtnVisible && (
+            <button style={style.btn}  onClick={sendDecline}>Decline</button>
+          )}
+             {endBtnVisible && (
+            <button style={style.btn}  onClick={sendEnd}>End</button>
+          )}
+             {ignoreBtnVisible&& (
+            <button style={style.btn}  onClick={sendIgnore}>Ignore</button>
+          )}
+              {cancellBtnVisible && (
+            <button style={style.btn} onClick={sendCancel}>
+              Cancel
+            </button>
           )}
         </div>
     </div>

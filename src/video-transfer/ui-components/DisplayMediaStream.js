@@ -1,28 +1,24 @@
 import { h } from 'preact';
 import { useRef, useEffect } from 'preact/hooks';
 import './style.css';
-export default function DisplayMediaStream ({ mediaStream, width, height,style, name, localClose }) {
+export default function DisplayMediaStream ({ mediaStream, width, height,style, name }) {
 	const videoRef =useRef(null);
 
 
 	useEffect(() => {
-		if (mediaStream !==null && !localClose){
+		if (mediaStream !==null){
 			videoRef.current.srcObject =mediaStream;
 		}
-	},[mediaStream]);
-
-	useEffect(() => {
-		if (localClose && videoRef.current.srcObject){
+		else if (videoRef.current.srcObject && mediaStream===null){
 			videoRef.current.srcObject.getTracks().forEach(t => t.stop());
 			videoRef.current.srcObject=null;
 		}
+	},[mediaStream]);
 
-	},[localClose]);
-	
 	 if (mediaStream !==null){
-		return (<video  width={width} autoPlay  ref={videoRef} />);
+		return (<div style={{ height: '100%', width: '100%', display: 'flex' ,justifyContent: 'center',position: 'relative' }}><video  width={width} autoPlay  ref={videoRef} /></div>);
 	
 	}
-
+	return null;
 	
 }

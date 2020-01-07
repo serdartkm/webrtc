@@ -6,6 +6,11 @@ export default function RTCStateView ({ signalingState,connectionState,iceConnec
 	const [rtcPeerConStates, setRtcPeerConStates]= useState([]);
 
 	useEffect(() => {
+		if (iceConnectionState==='closed'){
+			setRtcPeerConStates([]);
+		}
+	},[iceConnectionState]);
+	useEffect(() => {
 	
 		const newState ={
 			signalingState: { state: signalingState,changed: false },

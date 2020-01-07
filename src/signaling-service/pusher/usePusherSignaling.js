@@ -1,98 +1,31 @@
-import { useState ,useEffect } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
-export default function usePusherSignaling ({ localOffer,localAnswer,localCandidate,localDecline,localClose,targetId,currentUser,roomId }){
-	const [remoteOffer, setRemoteOffer]=useState(null);
-	const [remoteAnswer,setRemoteAnswer]=useState(null);
-	const [remoteCandidate,setRemoteCandidate]=useState(null);
-	const [remoteClose,setRemoteClose]=useState(false);
-
-
-	useEffect(() => {
-		if (!localAnswer && !localAnswer && !localCandidate){
-			resetState();
-		}
-	},[localOffer,localCandidate,localAnswer]);
-
-	useEffect(() => {
-		if (localOffer) {
-			const offer = { sdp: localOffer, userId: currentUser.id, targetId, type: 'offer' };
-			sendMessage(JSON.stringify(offer));
-		}
-	
-	}, [localOffer]);
-    
-	useEffect(() => {
-		if (localAnswer) {
-			const answer = { sdp: localAnswer, userId: currentUser.id, targetId,type: 'answer'  };
-			sendMessage(JSON.stringify(answer));
-		
-		}
-	
-	}, [localAnswer]);
-
-
-	useEffect(() => {
-		if (localCandidate) {
-			const candidate = {
-				sdp: localCandidate,
-				userId: currentUser.id,
-				targetId,
-				type: 'candidate'
-			};
-			
-			sendMessage(JSON.stringify(candidate));
-		}
-	}, [localCandidate]);
-
-	useEffect(() => {
-	
-		if (localClose) {
-			const close = { userId: currentUser.id, targetId,type: 'close'  };
-			sendMessage(JSON.stringify(close));
-			resetState();
-		}
-
-	},[localClose]);
-
-	useEffect(() => {
-
-		if (localDecline){
-			const decline = { userId: currentUser.id, targetId,type: 'decline'  };
-			sendMessage(JSON.stringify(decline));
-			resetState();
-		}
-
-	},[localDecline]);
-
+export default function PusherSignaling({ currentUser, roomId, target,name,closed }) {
+	const [message, setMessage] = useState(null);
+	const [error,setError]=useState(null);
+	const [partialMessage,setPartialMessage]= useState(null);
+	const [messages,setMessages]= useState([]);
 	useEffect(() => {
 		if (currentUser) {
 			currentUser.subscribeToRoomMultipart({
 				roomId,
 				hooks: {
-					onMessage: message => {
-						const { targetId, sdp,type } = JSON.parse(
-							message.parts[0].payload.content
-						);
-						if (targetId === currentUser.id) {
-							if (type === 'offer') {
+					onMessage: m => {
+						const msg =JSON.parse(m.parts[0].payload.content);
+						
+						if (msg.target ===name){
+							if (msg.type==='offer' || msg.type==='answer'){
+								setPartialMessage(msg);
+							}
+							else {
+								setMessage(msg.msg);
+								if (msg.type ==='end'){
+									setMessages([]);
+									setPartialMessage(null);
+									setError(null);
+								
+								}
 							
-								setRemoteOffer(sdp);
-							
-							}
-							else if (type === 'answer') {
-							
-								setRemoteAnswer(sdp);
-							}
-							else if (type === 'candidate') {
-								setRemoteCandidate(sdp);
-							}
-							else if (type ==='close'){
-								setRemoteClose(true);
-								resetState();
-							}
-							else if (type ==='decline'){
-								setRemoteClose(true);
-								resetState();
 							}
 						}
 					}
@@ -101,30 +34,90 @@ export default function usePusherSignaling ({ localOffer,localAnswer,localCandid
 			});
 		}
 	}, [currentUser]);
-	useEffect(() => {
-	
-	},[remoteClose]);
-	function sendMessage(msg) {
-	
-		if (msg !== null && msg !== undefined) {
-	  	currentUser.sendSimpleMessage({
-				text: msg,
-				roomId: currentUser.rooms[0].id
-			}).then((response) => {
-				
-			}).catch((e) => {
-			
-			});
 
+	useEffect(() => {
+		if (partialMessage){
+		
+			if (messages.length===0){
+				setMessages([partialMessage]);
+			
+			}
+			else if (messages.length>0) {
+				const msg =messages.find( element => element.id===partialMessage.id);
+				let fullContent =null;
+			
+				if (msg === undefined){
+					setMessages([partialMessage]);
+				
+				}
+				else
+				if (msg && msg.order==='first'){
+					fullContent =  msg.content+partialMessage.content;
+					setMessage({ sdp: JSON.parse(fullContent), type: msg.type });
+					setMessages(prev => [...prev.filter(e => e.id ===partialMessage.id)]) ;
+				}
+				else if (msg && msg.order==='second') {
+					fullContent =  partialMessage.content+msg.content;
+					setMessage({ sdp: JSON.parse(fullContent), type: msg.type });
+					setMessages(prev => [...prev.filter(e => e.id ===partialMessage.id)]) ;
+				}
+				//	console.log('fullContent', fullContent);
+				
+			}
 		}
+	},[partialMessage]);
+
+	function sendMessage(msg) {
+
+		if (msg !== null && msg !== undefined && (msg.type ==='offer' || msg.type==='answer')) {
+		
+			
+			const fullContent = JSON.stringify(msg);
+			const id = new Date().getTime();
+			const fisrtPart = { content: fullContent.substring(0,(fullContent.length /2)), id, order: 'first', target,name, type: msg.type };
+			const secondPart ={ content: fullContent.substring((fullContent.length/2)), id,order: 'second',target,name, type: msg.type };
+
+	
+			currentUser
+				.sendSimpleMessage({
+					text: JSON.stringify( fisrtPart),
+					roomId: currentUser.rooms[0].id
+				})
+				.then(response => currentUser.sendSimpleMessage({
+					text: JSON.stringify( secondPart),
+					roomId: currentUser.rooms[0].id
+				})
+				)
+				.catch(e => {
+					setError(e);
+					// eslint-disable-next-line no-debugger
+					debugger;
+				});
+		}
+		else {
+	
+			currentUser
+				.sendSimpleMessage({
+					text: JSON.stringify({ msg,target,name }),
+					roomId: currentUser.rooms[0].id
+				})
+				.then(() => {
+					if (msg.type==='end'){
+						setMessages([]);
+						setPartialMessage(null);
+						setError(null);
+					
+					}
+				})
+				.catch(e => {
+					setError(e);
+					// eslint-disable-next-line no-debugger
+					debugger;
+				});
+		}
+		
 	}
-	function resetState (){
-		setTimeout(() => {
-			setRemoteAnswer(null);
-			setRemoteOffer(null);
-			setRemoteCandidate(null);
-			setRemoteClose(false);
-		},0);
-	}
-	return { remoteAnswer,remoteOffer,remoteCandidate, remoteClose };
+
+	return { message, sendMessage,error };
+	
 }
