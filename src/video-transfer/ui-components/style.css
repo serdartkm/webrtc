@@ -5,7 +5,7 @@ table {
 
 th,
 td {
-  padding: 3px;
+  padding: 5px;
   text-align: left;
   border: 1px solid #ccc;
 }
@@ -82,7 +82,7 @@ tbody tr:nth-child(odd) {
 
 .button-container {
   position: absolute;
-  bottom: 10%;
+  bottom: 5%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

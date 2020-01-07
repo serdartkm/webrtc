@@ -27,7 +27,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				setConnectionState(pc.connectionState);
 				switch (pc.connectionState){
 					case 'failed':
-						
+						resetState();
 				}
 			
 			};
@@ -153,7 +153,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 			.then(() =>  type==='answer' ? pc.createAnswer() : pc.createOffer() )
 			.then((sdp) => {
 				pc.setLocalDescription(sdp);
-				debugger;
+			
 			})
 			.then(() => {
 				sendMessage({ sdp: pc.localDescription,type });
@@ -168,16 +168,21 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 		switch (type){
 			case 'decline':
 				sendMessage({ type: 'decline' });
-			
+				pc.close();
+				resetState();
 				break;
 			case  'end':
 				sendMessage({ type: 'end' });
 				pc.close();
+			
 				break;
 			case 'ignore':
+				pc.close();
+				resetState();
 				break;
 			case 'cancel':
 				pc.close();
+				resetState();
 				  break;
 		}
 	}

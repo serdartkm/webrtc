@@ -16,7 +16,6 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 						if (msg.target ===name){
 							if (msg.type==='offer' || msg.type==='answer'){
 								setPartialMessage(msg);
-								debugger;
 							}
 							else {
 								setMessage(msg.msg);
@@ -49,7 +48,7 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 			
 				if (msg === undefined){
 					setMessages([partialMessage]);
-					debugger;
+				
 				}
 				else
 				if (msg && msg.order==='first'){
@@ -67,11 +66,7 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 			}
 		}
 	},[partialMessage]);
-	useEffect(() => {
-		if (messages.length>0){
-		
-		}
-	},[messages]);
+
 	function sendMessage(msg) {
 
 		if (msg !== null && msg !== undefined && (msg.type ==='offer' || msg.type==='answer')) {
@@ -95,6 +90,7 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 				)
 				.catch(e => {
 					setError(e);
+					// eslint-disable-next-line no-debugger
 					debugger;
 				});
 		}
@@ -115,6 +111,8 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 				})
 				.catch(e => {
 					setError(e);
+					// eslint-disable-next-line no-debugger
+					debugger;
 				});
 		}
 		

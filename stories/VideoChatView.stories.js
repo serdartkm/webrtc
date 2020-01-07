@@ -5,9 +5,11 @@ import FetchMedia from '../src/video-transfer/ui-components/FetchMedia';
 export default {
 	title: 'VideoChatView'
 };
+const mediaSize ={
+	localStreamSize: { height: 100, width: 100 },
+	remoteStreamSize: { height: 250, width: 250 }
+};
 
-const localStreamSize = { height: 100, width: 100 };
-const remoteStreamSize = { height: 300, width: 500 };
 
 const style = {
 	height: '50vh',
@@ -19,6 +21,61 @@ const style = {
 // background-color: orange;
 };
 
+const readyUiState ={
+	connected: false,
+	callBtnVisible: true,
+	cancellBtnVisible: false,
+	answerBtnVisible: false,
+	declineBtnVisible: false,
+	ignoreBtnVisible: false,
+	calling: false,
+	recievingCall: false,
+	callEnded: false
+
+
+};
+
+const callingUiState ={
+	connected: false,
+	callBtnVisible: false,
+	cancellBtnVisible: true,
+	answerBtnVisible: false,
+	declineBtnVisible: false,
+	ignoreBtnVisible: false,
+	calling: true,
+	recievingCall: false,
+	callEnded: false
+
+
+};
+
+const recievingUiState ={
+	connected: false,
+	callBtnVisible: false,
+	cancellBtnVisible: false,
+	answerBtnVisible: true,
+	declineBtnVisible: true,
+	ignoreBtnVisible: true,
+	calling: false,
+	recievingCall: true,
+	callEnded: false
+
+
+};
+
+const connectedUiState ={
+	connected: true,
+	callBtnVisible: false,
+	cancellBtnVisible: false,
+	answerBtnVisible: false,
+	declineBtnVisible: false,
+	ignoreBtnVisible: false,
+	calling: false,
+	recievingCall: false,
+	callEndBtnVisible: true
+
+
+};
 function Container({ children }) {
 	return <div style={style}>{children}</div>;
 }
@@ -27,12 +84,9 @@ export function ready() {
 	return (
 		<Container>
 			<VideoChatView
-				calling={false}
-				recievingCall={false}
-				isCaller
-				isCallee
-				localStreamSize={localStreamSize}
-				remoteStreamSize={remoteStreamSize}
+				uiState={readyUiState}
+		
+				mediaSize={mediaSize}
 			/>
 		</Container>
 	);
@@ -43,11 +97,9 @@ export function calling() {
 		<Container>
 			{' '}
 			<VideoChatView
-				closeLabel="Cancel"
-				calling
-				recievingCall={false}
-				localStreamSize={localStreamSize}
-				remoteStreamSize={remoteStreamSize}
+				uiState={callingUiState}
+				target="dragos"
+				mediaSize={mediaSize}
 			/>
 		</Container>
 	);
@@ -58,10 +110,9 @@ export function recievingCall() {
 		<Container>
 			{' '}
 			<VideoChatView
-				closeLabel="Decline"
-				recievingCall
-				localStreamSize={localStreamSize}
-				remoteStreamSize={remoteStreamSize}
+				uiState={recievingUiState}
+				target="dragos"
+				mediaSize={mediaSize}
 			/>
 		</Container>
 	);
@@ -73,12 +124,9 @@ export function connected() {
 		<FetchMedia  constraint={{ video: { height: 100,width: 100 } }}>{({ localMediaStream }) => (<Container>
 			{' '}
 			<VideoChatView
-				remoteMediaStream={localMediaStream}
-				localMediaStream={localMediaStream}
-				closeLabel="End"
-				connected
-				localStreamSize={localStreamSize}
-				remoteStreamSize={remoteStreamSize}
+				uiState={connectedUiState}
+				target="dragos"
+				mediaSize={mediaSize}
 			/>
 		</Container>)}</FetchMedia>
 		

@@ -15,16 +15,8 @@ export default function DisplayMediaStream ({ mediaStream, width, height,style, 
 		}
 	},[mediaStream]);
 
-	// useEffect(() => {
-	// 	if (localClose && videoRef.current.srcObject){
-	// 		videoRef.current.srcObject.getTracks().forEach(t => t.stop());
-	// 		videoRef.current.srcObject=null;
-	// 	}
-
-	// },[localClose]);
-	
 	 if (mediaStream !==null){
-		return (<video  width={width} autoPlay  ref={videoRef} />);
+		return (<div style={{ height: '100%', width: '100%', display: 'flex' ,justifyContent: 'center',position: 'relative' }}><video  width={width} autoPlay  ref={videoRef} /></div>);
 	
 	}
 	return null;
