@@ -1,60 +1,29 @@
 import { useState,useEffect } from 'preact/hooks';
+import useWebRTCState from './use-webrtc-state';
 
-
-export default function useWebRTC ({ iceServers, message,sendMessage, target, name, mediaConstraints }){
+export default function useWebRTC ({ iceServers, message,sendMessage, mediaConstraints }){
 
 	const [pc,setPc] =useState(null);
+	const { signalingState,connectionState,iceConnectionState,iceGatheringState, remoteMediaStream } =useWebRTCState({ pc,sendMessage });
 	const [error,setError] =useState(null);
-	const [signalingState,setSignalingState] =useState(null);
-	const [connectionState,setConnectionState]=useState(null);
-	const [iceConnectionState, setIceConnectionState] = useState(null);
-	const [iceGatheringState, setIceGatheringState] = useState(null);
-	const [remoteMediaStream, setRemoteMediaStream] = useState(null);
 	const [localMediaStream,setLocalMediaStream] =useState(null);
 	const [remoteIceCandidates,setRemoteIceCandidates]=useState([]);
 	const [isCaller,setCaller] =useState(false);
 	const [remoteOffer, setRemoteOffer]= useState(null);
 
 	useEffect(() => {
-		if (pc){
-			pc.onicecandidate = function(e) {
-				if (e.candidate){
-				
-					sendMessage({ sdp: e.candidate,type: 'ice' });
-				}
-			  };
-			  pc.onconnectionstatechange = () => {
-				setConnectionState(pc.connectionState);
-				switch (pc.connectionState){
-					case 'failed':
-						resetState();
-				}
-			
-			};
-			pc.onsignalingstatechange = () => {
-				setSignalingState(pc.signalingState);
-				switch (pc.signalingState){
-					case 'closed':
-						resetState();
-				}
-			};
-			
-			pc.oniceconnectionstatechange = () => {
-				setIceConnectionState(pc.iceConnectionState);
-			};
-			pc.onicegatheringstatechange = () => {
-				setIceGatheringState(pc.iceConnectionState);
-			};
-			pc.ontrack = e => {
-				setRemoteMediaStream(e.streams[0]);
-			};
-		}
-
-		return () => {
+		if (signalingState==='closed'){
 			resetState();
-		};
-		
-	},[pc]);
+debugger
+		}
+	},[signalingState]);
+	useEffect(() => {
+		if (connectionState==='failed'){
+			resetState();
+
+		}
+	},[connectionState]);
+
 	useEffect(() => {
 		if (isCaller && pc){
 			createSDP('offer');
@@ -100,6 +69,10 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				case 'ignore':
 					pc.close();
 					 break;
+					 case 'cancel':
+					pc.close();
+				 	debugger;
+						 break;
 			}
 		}
 		if (message && pc){
@@ -135,15 +108,16 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 	},[remoteOffer,pc]);
 
 	function createAnswer (){
+	
 		createSDP('answer');
 	}
 	function createOffer (){
+		
 		setPc(new RTCPeerConnection(iceServers));
 		setCaller(true);
 	}
-
 	function createSDP(type){
-		navigator.mediaDevices.getUserMedia({ video: true,audio: false })
+		navigator.mediaDevices.getUserMedia(mediaConstraints)
 			.then((stream) => {
 				stream
 					.getVideoTracks()
@@ -163,7 +137,6 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				debugger;
 			});
 	}
-
 	function closeConnection (type){
 		switch (type){
 			case 'decline':
@@ -181,8 +154,9 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 				resetState();
 				break;
 			case 'cancel':
+				sendMessage({ type: 'cancel' });
 				pc.close();
-				resetState();
+			
 				  break;
 		}
 	}
@@ -194,17 +168,13 @@ export default function useWebRTC ({ iceServers, message,sendMessage, target, na
 			pc.oniceconnectionstatechange = null;
 			pc.onicegatheringstatechange = null;
 			pc.ontrack = null;
-			setPc(null);
-			setSignalingState(null);
-			setIceConnectionState(null);
-			setIceGatheringState(null);
-			setConnectionState(null);
-			setLocalMediaStream(null);
-			setRemoteMediaStream(null);
 			setError(null);
 			setRemoteOffer(null);
 			setCaller(false);
 			setRemoteIceCandidates([]);
+
+		
+			setPc(null);
 		}
 	}
 	function handleSendMessage (type){

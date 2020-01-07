@@ -19,11 +19,13 @@ export default function PusherSignaling({ currentUser, roomId, target,name,close
 							}
 							else {
 								setMessage(msg.msg);
-								if (msg.type ==='end'){
+							
+								if (msg.msg.type ==='end' || msg.msg.type==='cancel'){
 									setMessages([]);
 									setPartialMessage(null);
 									setError(null);
 								
+								debugger;
 								}
 							
 							}
