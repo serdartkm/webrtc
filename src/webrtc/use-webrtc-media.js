@@ -14,9 +14,15 @@ export default function useWebRTC ({ iceServers, message,sendMessage, mediaConst
 	useEffect(() => {
 		if (signalingState==='closed'){
 			resetState();
-debugger
+			debugger;
 		}
 	},[signalingState]);
+
+	useEffect(() => {
+		if (iceConnectionState==='disconnected'){
+			resetState();
+		}
+	},[iceConnectionState]);
 	useEffect(() => {
 		if (connectionState==='failed'){
 			resetState();
@@ -34,31 +40,10 @@ debugger
 		function messageRecived(){
 			switch (message.type){
 				case 'answer':
-					if (pc.localDescription){
-						pc.setRemoteDescription(message.sdp.sdp)
-							.then(() => {
-								if (remoteIceCandidates.length >0){
-									for ( let ice in remoteIceCandidates){
-										if (ice){
-											pc.addIceCandidate(remoteIceCandidates[ice]);
-										}
-									}
-								}
-							})
-							.catch((err) => {
-							// eslint-disable-next-line no-debugger
-								debugger;
-								setError(err);
-							});
-					}
+					setRemoteSdp(message.sdp.sdp);
 					break;
 				case 'ice':
-					if (pc.remoteDescription){
-						pc.addIceCandidate(message.sdp);
-					}
-				 else {
-						setRemoteIceCandidates((prev) => [...prev,message.sdp]);
-				 }
+					setRemoteIce(message.sdp);
 					break;
 				case 'end':
 					pc.close();
@@ -106,7 +91,33 @@ debugger
 				});
 		}
 	},[remoteOffer,pc]);
-
+	function setRemoteSdp(sdp){
+		if (pc.localDescription){
+			pc.setRemoteDescription(sdp)
+				.then(() => {
+					if (remoteIceCandidates.length >0){
+						for ( let ice in remoteIceCandidates){
+							if (ice){
+								pc.addIceCandidate(remoteIceCandidates[ice]);
+							}
+						}
+					}
+				})
+				.catch((err) => {
+				// eslint-disable-next-line no-debugger
+					debugger;
+					setError(err);
+				});
+		}
+	}
+	function setRemoteIce(sdp){
+		if (pc.remoteDescription){
+			pc.addIceCandidate(sdp);
+		}
+		else {
+			setRemoteIceCandidates((prev) => [...prev,message.sdp]);
+		}
+	}
 	function createAnswer (){
 	
 		createSDP('answer');

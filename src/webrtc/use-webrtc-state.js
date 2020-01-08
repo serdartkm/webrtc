@@ -2,7 +2,6 @@ import { useEffect, useState } from 'preact/hooks';
 
 export default function useWebRTCState ({ pc, sendMessage }){
    
-
 	const [signalingState,setSignalingState] =useState(null);
 	const [connectionState,setConnectionState]=useState(null);
 	const [iceConnectionState, setIceConnectionState] = useState(null);
@@ -18,20 +17,10 @@ export default function useWebRTCState ({ pc, sendMessage }){
 			  };
 			  pc.onconnectionstatechange = () => {
 				setConnectionState(pc.connectionState);
-				// switch (pc.connectionState){
-				// 	case 'failed':
-				// 		resetState();
-				// }
 			};
 			pc.onsignalingstatechange = () => {
 				setSignalingState(pc.signalingState);
-				// switch (pc.signalingState){
-				// 	case 'closed':
-				// 		resetState();
-				// 		debugger;
-				// }
 			};
-			
 			pc.oniceconnectionstatechange = () => {
 				setIceConnectionState(pc.iceConnectionState);
 			};
@@ -42,8 +31,6 @@ export default function useWebRTCState ({ pc, sendMessage }){
 				setRemoteMediaStream(e.streams[0]);
 			};
 		}
-	
-		
 	},[pc]);
     
 	return { signalingState,connectionState,iceConnectionState,iceGatheringState, remoteMediaStream };

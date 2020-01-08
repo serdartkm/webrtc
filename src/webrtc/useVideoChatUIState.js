@@ -71,7 +71,7 @@ export default function useVideoChatUIState ({ state }){
 		}
 	},[connected]);
 	useEffect(() => {
-		if (iceConnectionState==='closed'){
+		if (iceConnectionState==='closed'  || iceConnectionState==='disconnected'){
 			setCallEnded(true);
 			setCalling(false);
 			setRecievingCall(false);
