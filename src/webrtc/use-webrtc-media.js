@@ -40,7 +40,7 @@ export default function useWebRTC ({ iceServers, message,sendMessage, mediaConst
 		function messageRecived(){
 			switch (message.type){
 				case 'answer':
-					setRemoteSdp(message.sdp.sdp);
+					setRemoteSdp(message.sdp.sdp, 'answer');
 					break;
 				case 'ice':
 					setRemoteIce(message.sdp);
@@ -74,25 +74,12 @@ export default function useWebRTC ({ iceServers, message,sendMessage, mediaConst
 
 	useEffect(() => {
 		if (remoteOffer && pc){
-			pc.setRemoteDescription(remoteOffer)
-				.then(() => {
-					if (remoteIceCandidates.length >0){
-						for ( let ice in remoteIceCandidates){
-							if (ice){
-								pc.addIceCandidate(remoteIceCandidates[ice]);
-							}
-						}
-					}
-				})
-				.catch((err) => {
-					setError(err);
-					// eslint-disable-next-line no-debugger
-					debugger;
-				});
+			setRemoteSdp(remoteOffer,'offer');
 		}
 	},[remoteOffer,pc]);
-	function setRemoteSdp(sdp){
-		if (pc.localDescription){
+	
+	function setRemoteSdp(sdp, type){
+		if ((type==='answer' && pc.localDescription) || type==='offer'){
 			pc.setRemoteDescription(sdp)
 				.then(() => {
 					if (remoteIceCandidates.length >0){
