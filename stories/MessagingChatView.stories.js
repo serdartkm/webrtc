@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import MessagingChatView from '../src/text-transfer/ui-components/MessageChatView';
+import MessagingChatView from '../src/text-chat/ui-components/MessageChatView';
 
 export default {
 	title: 'MessagingChatView'
