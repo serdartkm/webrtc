@@ -4,9 +4,17 @@ import MessagingChatView from '../src/text-transfer/ui-components/MessageChatVie
 export default {
 	title: 'MessagingChatView'
 };
-
+const readyState={
+	connectionState: 'connected'
+};
 
 export function ready (){
 
-	return <MessagingChatView />;
+	return <MessagingChatView state={readyState} messageRecieved={{ sender: 'Dan', message: 'hello' }} />;
+}
+
+
+export function preparing (){
+
+	return <MessagingChatView state={state} messageRecieved={{ sender: 'Dan', message: 'hello' }} />;
 }
